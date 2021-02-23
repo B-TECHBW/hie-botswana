@@ -21,7 +21,7 @@ services:
     container_name: homepage
     hostname: homepage
     environment: 
-      - MESSAGE=HIE-BOTSWANA
+      - MESSAGE=SEDISH-HAITI-DEFAULT
     networks: 
       - hie
 
@@ -38,6 +38,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
+      - /home/ubuntu/local/letsencrypt/archive/sedish-haiti.org:/etc/letsencrypt
       - ./docker/nginx/data/nginx.conf:/etc/nginx/nginx.conf
       - ./docker/nginx/data/www:/var/www
     networks:
@@ -77,7 +78,7 @@ services:
     networks:
       - hie
     volumes:
-      - cr-data:/data/hapi
+      - cr-data:/data/hapi      
   opencr-es:
     container_name: es
     image: intrahealth/elasticsearch:latest
@@ -125,7 +126,7 @@ services:
       - shr-data:/data/hapi
     networks:
       - hie
-
+  
   ###
   # OpenHIM
   ###
@@ -164,7 +165,7 @@ services:
       retries: 3
     networks:
       - hie
-  
+
   mongo-db:
     container_name: mongo-db
     image: mongo:4.0
