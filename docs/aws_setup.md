@@ -50,3 +50,24 @@ docker run \
     -e PORT=3000 \
     -d docker.io/sroze/landing-page:latest
 ```
+
+Make sure to set up AWS certification
+
+```
+sudo - E certbot certonly \
+-n \
+--agree-tos \
+--email pmanko@uw.edu \
+-d moh.org.bw \
+-d '*.moh.org.bw' \
+--dns-route53 \
+--preferred-challenges=dns \
+--logs-dir /tmp/letsencrypt \
+--config-dir ~/local/letsencrypt \
+--work-dir /tmp/letsencrypt
+--dry-run
+
+```
+
+
+## Add access for ports 80 and 443 in AWS security policy settings
