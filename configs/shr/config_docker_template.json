@@ -19,7 +19,7 @@
   "fhirServer": {
     "username": "shr",
     "password": "shr123",
-    "mpiURL": "https://moh.org.bw:5000/CR/fhir",
+    "mpiURL": "https://openhim.moh.org.bw/CR/fhir",
     "baseURL": "https://shr-fhir.moh.org.bw/fhir"
   },
 

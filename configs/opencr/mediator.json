@@ -129,7 +129,7 @@
           "host": "opencr.moh.org.bw",
           "port": 443,
           "path": "",
-          "pathTransform": "",
+          "pathTransform": "s/CR\/fhir/fhir/g",
           "primary": true,
           "username": "",
           "password": ""

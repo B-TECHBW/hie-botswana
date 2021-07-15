@@ -1,2 +1,4 @@
 # modified configs
 config_development.json
+**/node_modules
+**/built
