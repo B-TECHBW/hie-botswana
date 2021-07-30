@@ -1,5 +1,5 @@
 {
-    "urn": "urn:uuid:4bc42b2f-b5a8-473d-8207-5dd5c61f0c4a",
+    "urn": "urn:mediator:bw_clientregistry",
     "version": "0.0.1",
     "name": "Client Registry",
     "description": "Open Client Registry",

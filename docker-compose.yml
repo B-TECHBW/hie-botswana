@@ -36,6 +36,7 @@ services:
     image: nginx:latest
     container_name: nginx
     hostname: nginx
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
@@ -45,7 +46,10 @@ services:
       - nginx-data:/var/www
     networks:
       - hie
-    
+    logging:
+      options:
+        max-size: "10k"
+        max-file: "3"
   ###
   # OpenCR
   ###
@@ -85,6 +89,7 @@ services:
   opencr-es:
     container_name: es
     image: intrahealth/elasticsearch:latest
+    restart: unless-stopped
     environment:
       - node.name=es01
       - discovery.type=single-node
@@ -108,9 +113,7 @@ services:
     container_name: shr
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:pr-2
-    ports:
-      - "${SHR_PORT}:3000"
-    restart: on-failure
+    restart: unless-stopped
     environment:
       - NODE_ENV=docker
     networks:
@@ -139,6 +142,7 @@ services:
   ###
   openhim-core:
     container_name: openhim-core
+    hostname: openhim-core
     image: jembi/openhim-core:latest
     restart: unless-stopped
     environment:
@@ -163,6 +167,7 @@ services:
       
   openhim-console:
     container_name: openhim-console
+    hostname: openhim-console
     image: jembi/openhim-console:latest
     restart: unless-stopped
     volumes:
@@ -184,17 +189,18 @@ services:
     restart: unless-stopped
     networks:
       - hie
-  # pimsdb:
-  #   container_name: pims_db
-  #   image: mcr.microsoft.com/mssql/server:2017-latest
-  #   environment:
-  #     MSSQL_SA_PASSWORD: "Pimsdbpw12!"
-  #     ACCEPT_EULA: "Y"
-  #   ports:
-  #     - 1433:1433
-  #   volumes:
-  #     - ./db:/var/opt/mssql/backup
-  #     - sqldata:/var/opt/mssql
+
+  fhir-converter:
+    container_name: fhir-converter
+    hostname: fhir-converter
+    restart: unless-stopped
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:docker-fixes
+    #   - "2019:2019"
+    volumes:
+      - ./configs/fhir-converter/config.json:/app/config.json
+      - /app/src/service-templates
+    networks:
+      - hie
       
 volumes:
   es:

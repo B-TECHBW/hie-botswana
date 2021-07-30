@@ -1,5 +1,5 @@
 {
-  "urn": "urn:uuid:4bc42b2f-b5a8-473d-8207-5dd5c61f0c4b",
+  "urn": "urn:mediator:bw_sharedhealthrecord",
   "version": "0.0.1",
   "name": "Botswana SHR",
   "description": "Botswana Shared Health Record",
