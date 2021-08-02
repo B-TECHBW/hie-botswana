@@ -19,10 +19,10 @@ jobs:
     - name: Start containers
       run: docker-compose -f dev.docker-compose.yml up -d --build
     
-    - uses: matt-ball/newman-action@master
-      with:
-        collection: 
-        environment: .postman/github.postman_environment.json
+    # - uses: matt-ball/newman-action@master
+    #   with:
+    #     collection: 
+    #     environment: .postman/github.postman_environment.json
 
     - name: Stop containers
       if: always()
