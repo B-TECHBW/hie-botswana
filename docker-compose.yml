@@ -69,7 +69,8 @@ services:
       # - ./configs/opencr/app.js:/src/server/lib/app.js
       - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/privkey1.pem:/src/server/serverCertificates/server_key.pem
       - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/fullchain1.pem:/src/server/serverCertificates/server_cert.pem   
-
+    ports:
+      - 
   opencr-fhir:
     image: hapiproject/hapi:latest
     container_name: opencr-fhir

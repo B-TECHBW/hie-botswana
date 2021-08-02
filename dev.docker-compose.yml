@@ -16,58 +16,35 @@ version: '2.4'
 # `docker run --hostname openhim-placeholder --network shared-health-record_sedish --name openhim-placeholder -e MESSAGE=OPENHIM-PLACEHOLDER -e PORT=3000 -d docker.io/sroze/landing-page:latest`
 
 services:
-  static:
-    image: docker.io/sroze/landing-page:latest
-    container_name: homepage
-    hostname: homepage
-    environment: 
-      - MESSAGE=SEDISH-HAITI-DEFAULT
-    networks: 
-      - hie
+  # static:
+  #   image: docker.io/sroze/landing-page:latest
+  #   container_name: homepage
+  #   hostname: homepage
+  #   environment: 
+  #     - MESSAGE=HIE-BOTSWANA
+  #   networks: 
+  #     - hie
+  #   ports:
+  #     - 8082:80
 
-  ###
-  # nginx reverse proxy
-  # TODO: set up to use non-root user. See https://www.rockyourcode.com/run-docker-nginx-as-non-root-user/
-  # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
-  ###
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    hostname: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /home/ubuntu/local/letsencrypt/archive/sedish-haiti.org:/etc/letsencrypt
-      - ./docker/nginx/data/nginx.conf:/etc/nginx/nginx.conf
-      - ./docker/nginx/data/www:/var/www
-    networks:
-      - hie
-    depends_on: 
-      - static
-      - openhim-console
-      - openhim-core
-      - opencr-fhir
-      - shr-fhir
-      - shr
-      - opencr
   ###
   # OpenCR
   ###
   opencr:
     container_name: opencr
     hostname: opencr
-    build: ./docker/opencr
-    ports:
-      - "${CR_PORT}:3000"
-    depends_on:
-      - opencr-fhir
-      - opencr-es
-    restart: on-failure
+    image: intrahealth/opencr:latest
+    restart: unless-stopped
     environment:
       - NODE_ENV=docker
+      - HAPI_FHIR_URL=http://opencr-fhir:8080/fhir/metadata
     networks:
       - hie
+    volumes:
+      - ./configs/opencr/config_dev.json:/src/server/config/config_docker.json
+      - ./configs/opencr/mediator.json:/src/server/config/mediator.json
+    ports:
+      - "${CR_PORT}:8080"
   opencr-fhir:
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
@@ -77,11 +54,17 @@ services:
       - "${CR_FHIR_PORT}:8080"
     networks:
       - hie
+    healthcheck:
+      test: "curl -sS http://opencr-fhir:8080/fhir/metadata || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
     volumes:
-      - cr-data:/data/hapi      
+      - cr-data:/data/hapi
   opencr-es:
     container_name: es
     image: intrahealth/elasticsearch:latest
+    restart: unless-stopped
     environment:
       - node.name=es01
       - discovery.type=single-node
@@ -104,46 +87,57 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    build:
-      context: shr
-    ports:
-      - "${SHR_PORT}:3000"
-    restart: on-failure
+    image: ghcr.io/i-tech-uw/shared-health-record:main
+    restart: unless-stopped
     environment:
       - NODE_ENV=docker
-    depends_on: 
-      - shr-fhir
     networks:
       - hie
+    volumes:
+      - ./configs/shr/config_dev.json:/server/config/config_docker.json
+      - ./configs/shr/mediator.json:/server/config/mediator_docker.json
+    ports: 
+      - ${SHR_PORT}:3000
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
     hostname: shr-fhir
     restart: unless-stopped
-    ports:
-      - "${SHR_FHIR_PORT}:8080"
     volumes:
       - shr-data:/data/hapi
     networks:
       - hie
-  
+    healthcheck:
+      test: "curl -sS http://shr-fhir:8080/fhir/metadata || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - "${SHR_FHIR_PORT}:8080"
+
+
   ###
   # OpenHIM
   ###
   openhim-core:
     container_name: openhim-core
+    hostname: openhim-core
     image: jembi/openhim-core:latest
     restart: unless-stopped
     environment:
-      mongo_url: "mongodb://mongo-db/openhim-development"
-      mongo_atnaUrl: "mongodb://mongo-db/openhim-development"
+      mongo_url: "mongodb://mongo-db/openhim"
+      mongo_atnaUrl: "mongodb://mongo-db/openhim"
       NODE_ENV: "development"
     ports:
-      - "${OPENHIM_PORT}:8080"
+      - 8080:8080
       - "5000:5000"
       - "5001:5001"
+      # - "5050:5050"
+      # - "5051:5051"
+      # - "5052:5052"
+      # - "7788:7788"
     healthcheck:
-      test: "curl -sSk https://openhim-core:${OPENHIM_PORT}/heartbeat || exit 1"
+      test: "curl -sSk https://openhim-core:8080/heartbeat || exit 1"
       interval: 30s
       timeout: 30s
       retries: 3
@@ -152,10 +146,9 @@ services:
       
   openhim-console:
     container_name: openhim-console
+    hostname: openhim-console
     image: jembi/openhim-console:latest
     restart: unless-stopped
-    ports:
-      - "${OPENHIM_CONSOLE_PORT}:80"
     volumes:
       - ./configs/openhim-console/default.json:/usr/share/nginx/html/config/default.json
     healthcheck:
@@ -165,22 +158,44 @@ services:
       retries: 3
     networks:
       - hie
-
+    ports:
+      - "${OPENHIM_CONSOLE_PORT}:80"
   mongo-db:
     container_name: mongo-db
-    image: mongo:4.0
+    image: mongo:3.4
+    ports:
+      - 27017:27017
     volumes:
       - "mongo-data:/data/db"
     restart: unless-stopped
+    networks:
+      - hie
 
+  fhir-converter:
+    container_name: fhir-converter
+    hostname: fhir-converter
+    restart: unless-stopped
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:docker-fixes
+    ports:
+      - 2019:2019
+    volumes:
+      - ./configs/fhir-converter/config.json:/app/config.json
+      - /app/src/service-templates
+    networks:
+      - hie
+      
 volumes:
   es:
     driver: local
   mongo-data:
     driver: local
+  sqldata:
+    driver: local
   shr-data:
     driver: local
   cr-data:
+    driver: local
+  nginx-data:
     driver: local
 networks:
   hie:

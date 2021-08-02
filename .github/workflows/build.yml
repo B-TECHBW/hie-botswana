@@ -1,0 +1,29 @@
+name: Build Environment
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  test:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Start containers
+      run: docker-compose -f dev.docker-compose.yml up -d --build
+    
+    - uses: matt-ball/newman-action@master
+      with:
+        collection: 
+        environment: .postman/github.postman_environment.json
+
+    - name: Stop containers
+      if: always()
+      run: docker-compose -f dev.docker-compose.yml down    
