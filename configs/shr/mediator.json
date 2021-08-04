@@ -1,51 +1,8 @@
 {
   "urn": "urn:mediator:bw_sharedhealthrecord",
-  "version": "0.0.1",
-  "name": "Botswana SHR",
+  "version": "0.1.2",
+  "name": "BW Shared Health Record",
   "description": "Botswana Shared Health Record",
-  "config": {
-      "fhirServer": {
-        "username": "shr",
-        "password": "shr123",
-        "baseURL": "https://shr-fhir.moh.org.bw/fhir",
-        "mpiURL": "https://openhim.moh.org.bw/CR/fhir"
-      }
-  },
-  "configDefs": [
-      {
-          "param": "fhirServer",
-          "displayName": "FHIR Server",
-          "description": "FHIR Server Configuration Details",
-          "type": "struct",
-          "template": [
-              {
-                  "type": "string",
-                  "description": "The base URL (e.g. http://localhost:8080/hapi/fhir)",
-                  "displayName": "Base URL",
-                  "param": "baseURL"
-              },
-              {
-                  "type": "string",
-                  "description": "The MPI URL",
-                  "displayName": "MPI URL",
-                  "param": "mpiURL"
-                },
-                {
-                  "type": "string",
-                  "description": "Username required to access FHIR server",
-                  "displayName": "Username",
-                  "param": "username"
-              },
-              {
-                  "type": "password",
-                  "description": "Password required to access FHIR server",
-                  "displayName": "Password",
-                  "param": "password"
-              }
-          ],
-          "values": ["","","",""]
-      }
-  ],
   "defaultChannelConfig": [
     {
       "methods": [
@@ -78,9 +35,9 @@
           "status": "enabled",
           "forwardAuthHeader": false,
           "name": "SHR - Get/Create/Update Resource",
-          "secured": true,
-          "host": "shr.moh.org.bw",
-          "port": 443,
+          "secured": false,
+          "host": "shr",
+          "port": 3000,
           "path": "",
           "pathTransform": "s/SHR\\/fhir/fhir/g",
           "primary": true,
@@ -88,24 +45,13 @@
           "password": ""
         }
       ],
-      "alerts": [],
-      "rewriteUrlsConfig": [],
-      "updatedBy": {
-        "id": "5f84d542efaf3c001240dd95",
-        "name": "Super User"
-      },
-      "matchContentJson": null,
-      "matchContentRegex": null,
-      "matchContentValue": null,
-      "matchContentXpath": null,
-      "pollingSchedule": null,
-      "tcpHost": null,
-      "tcpPort": null,
-      "priority": 2
+      "priority": 1
     },
     {
       "methods": [
-        "GET"
+        "GET",
+        "POST",
+        "PUT"
       ],
       "type": "http",
       "whitelist": [],
@@ -123,7 +69,7 @@
       "name": "SHR - Get/Update IPS",
       "requestBody": true,
       "responseBody": true,
-      "description": "Get or Update International Patient Summary Bundle from the SHR",
+      "description": "Get or Update the Internaional Patient Summary Bundle from the SHR",
       "urlPattern": "^/SHR/fhir/ips.*$",
       "routes": [
         {
@@ -131,9 +77,9 @@
           "status": "enabled",
           "forwardAuthHeader": false,
           "name": "SHR - Get IPS",
-          "secured": true,
-          "host": "shr.moh.org.bw",
-          "port": 443,
+          "secured": false,
+          "host": "shr",
+          "port": 3000,
           "path": "",
           "pathTransform": "s/SHR\\/fhir\\/ips/ips/g",
           "primary": true,
@@ -143,29 +89,63 @@
       ],
       "alerts": [],
       "rewriteUrlsConfig": [],
-      "updatedBy": {
-        "id": "5f84d542efaf3c001240dd95",
-        "name": "Super User"
-      },
-      "matchContentJson": null,
-      "matchContentRegex": null,
-      "matchContentValue": null,
-      "matchContentXpath": null,
-      "pollingSchedule": null,
-      "tcpHost": null,
-      "tcpPort": null,
-      "priority": 1
-    }],
-  "endpoints": [
-      {
-          "name": "SHR Endpoint",
-          "host": "shr.moh.org.bw",
-          "path": "/",
-          "port": 443,
-          "primary": true,
-          "forwardAuthHeader": false,
+      "priority": 2
+    },
+    {
+      "methods": [
+        "GET",
+        "POST",
+        "PUT"
+      ],
+      "type": "http",
+      "whitelist": [],
+      "authType": "private",
+      "matchContentTypes": [],
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "name": "SHR - Laboratory",
+      "requestBody": true,
+      "responseBody": true,
+      "description": "Get or Update the Laboratory Order Bundle in the SHR",
+      "urlPattern": "^/SHR/fhir/ips.*$",
+      "routes": [
+        {
+          "type": "http",
           "status": "enabled",
-          "type": "http"
-      }
+          "forwardAuthHeader": false,
+          "name": "SHR - Laboratory",
+          "secured": false,
+          "host": "shr",
+          "port": 3000,
+          "path": "",
+          "pathTransform": "s/SHR\\/fhir\\/ips/ips/g",
+          "primary": true,
+          "username": "",
+          "password": ""
+        }
+      ],
+      "alerts": [],
+      "rewriteUrlsConfig": [],
+      "priority": 3
+    }
+  ],
+  "endpoints": [
+    {
+      "name": "SHR Endpoint",
+      "host": "shr",
+      "path": "/",
+      "port": 3000,
+      "primary": true,
+      "forwardAuthHeader": false,
+      "status": "enabled",
+      "type": "http"
+    }
   ]
 }

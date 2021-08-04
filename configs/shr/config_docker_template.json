@@ -11,8 +11,8 @@
     "api": {
       "username": "root@openhim.org",
       "password": "bw-openhim",
-      "apiURL": "https://core.moh.org.bw",
-      "trustSelfSigned": false,
+      "apiURL": "https://openhim-core:8080",
+      "trustSelfSigned": true,
       "urn": ""
     }
   },
@@ -20,7 +20,7 @@
     "username": "shr",
     "password": "shr123",
     "mpiURL": "https://openhim.moh.org.bw/CR/fhir",
-    "baseURL": "https://shr-fhir.moh.org.bw/fhir"
+    "baseURL": "https://shr-fhir:8080/fhir"
   },
 
   "structureDefinition": {
