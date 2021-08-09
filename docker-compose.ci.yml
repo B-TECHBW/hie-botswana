@@ -12,20 +12,12 @@ version: '2.4'
 #    stdin_open: true
 #    entrypoint: bash
 
-## Utility for booting up placeholder page:
-# `docker run --hostname openhim-placeholder --network shared-health-record_sedish --name openhim-placeholder -e MESSAGE=OPENHIM-PLACEHOLDER -e PORT=3000 -d docker.io/sroze/landing-page:latest`
-
 services:
-  # static:
-  #   image: docker.io/sroze/landing-page:latest
-  #   container_name: homepage
-  #   hostname: homepage
-  #   environment: 
-  #     - MESSAGE=HIE-BOTSWANA
-  #   networks: 
-  #     - hie
-  #   ports:
-  #     - 8082:80
+  ###
+  # nginx reverse proxy
+  # - Not currently used in CI
+  ###
+  
 
   ###
   # OpenCR
@@ -41,22 +33,18 @@ services:
     networks:
       - hie
     volumes:
-      - ./configs/opencr/config_dev.json:/src/server/config/config_docker.json
-      - ./configs/opencr/mediator.json:/src/server/config/mediator.json
-    ports:
-      - "${CR_PORT}:8080"
+      - ./configs/opencr/config_ci.json:/src/server/config/config_docker.json
+      - ./configs/opencr/mediator_ci.json:/src/server/config/mediator.json
   opencr-fhir:
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
     hostname: opencr-fhir
     restart: unless-stopped
-    ports:
-      - "${CR_FHIR_PORT}:8080"
     networks:
       - hie
     healthcheck:
       test: "curl -sS http://opencr-fhir:8080/fhir/metadata || exit 1"
-      interval: 30s
+      interval: 90s
       timeout: 30s
       retries: 3
     volumes:
@@ -76,8 +64,6 @@ services:
         hard: -1
     volumes:
       - es:/usr/share/elasticsearch/data
-    ports:
-      - "${CR_ES_PORT}:9200"
     networks:
       - hie
 
@@ -87,17 +73,15 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:main
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.1.2
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
     networks:
       - hie
     volumes:
-      - ./configs/shr/config_dev.json:/server/config/config_docker.json
-      - ./configs/shr/mediator.json:/server/config/mediator_docker.json
-    ports: 
-      - ${SHR_PORT}:3000
+      - ./configs/shr/config_ci.json:/app/config/config_docker.json
+      - ./configs/shr/mediator_ci.json:/app/config/mediator_docker.json
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -112,8 +96,6 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-    ports:
-      - "${SHR_FHIR_PORT}:8080"
 
 
   ###
@@ -128,6 +110,13 @@ services:
       mongo_url: "mongodb://mongo-db/openhim"
       mongo_atnaUrl: "mongodb://mongo-db/openhim"
       NODE_ENV: "development"
+    healthcheck:
+      test: "curl -sSk https://openhim-core:8080/heartbeat || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - hie
     ports:
       - 8080:8080
       - "5000:5000"
@@ -136,35 +125,9 @@ services:
       # - "5051:5051"
       # - "5052:5052"
       # - "7788:7788"
-    healthcheck:
-      test: "curl -sSk https://openhim-core:8080/heartbeat || exit 1"
-      interval: 30s
-      timeout: 30s
-      retries: 3
-    networks:
-      - hie
-      
-  openhim-console:
-    container_name: openhim-console
-    hostname: openhim-console
-    image: jembi/openhim-console:latest
-    restart: unless-stopped
-    volumes:
-      - ./configs/openhim-console/default.json:/usr/share/nginx/html/config/default.json
-    healthcheck:
-      test: "curl -sS http://openhim-console || exit 1"
-      interval: 30s
-      timeout: 30s
-      retries: 3
-    networks:
-      - hie
-    ports:
-      - "${OPENHIM_CONSOLE_PORT}:80"
   mongo-db:
     container_name: mongo-db
     image: mongo:3.4
-    ports:
-      - 27017:27017
     volumes:
       - "mongo-data:/data/db"
     restart: unless-stopped
@@ -175,15 +138,34 @@ services:
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
-    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:docker-fixes
-    ports:
-      - 2019:2019
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:v3.0.1
     volumes:
-      - ./configs/fhir-converter/config.json:/app/config.json
-      - /app/src/service-templates
+      - ./configs/fhir-converter/config_ci.json:/app/config.json
     networks:
       - hie
-      
+
+  # Newman Tests
+  newman:
+    profiles: ["run-test"]
+    image: postman/newman
+    environment: 
+      - $POSTMAN_COLLECTION
+    volumes:
+      - ./.postman:/.postman
+    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 10000
+
+  # Not necessary
+  openhim-console:
+    profiles: ["ui"]
+    image: jembi/openhim-console:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    healthcheck:
+      test: "curl -sS http://localhost || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3      
 volumes:
   es:
     driver: local
