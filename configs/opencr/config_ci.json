@@ -11,7 +11,7 @@
     "api": {
       "username": "root@openhim.org",
       "password": "openhim-password",
-      "apiURL": "http://localhost:8080",
+      "apiURL": "https://openhim-core:8080",
       "trustSelfSigned": true,
       "urn": ""
     },
@@ -20,10 +20,10 @@
   "fhirServer": {
     "username": "hapi",
     "password": "hapi",
-    "baseURL": "localhost:8082/fhir"
+    "baseURL": "http://opencr-fhir:8080/fhir"
   },
   "elastic": {
-    "server": "http://localhost:9200",
+    "server": "http://es:9200",
     "username": "",
     "password": "",
     "max_compilations_rate": "10000/1m",
