@@ -23,15 +23,21 @@ jobs:
         uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
 
-      - name: Start containers
-        run: docker-compose -f docker-compose.ci.yml up -d
+      - name: Start support containers
+        run: docker-compose -f docker-compose.ci.yml up -d openhim-core mongo-db opencr-es opencr-fhir shr-fhir 
         
-      - name: Sleep for 30 seconds
-        run: sleep 30s
+      - name: Sleep for 60 seconds
+        run: sleep 60s
         shell: bash
 
-      - name: Display docker logs
-        run: docker-compose -f docker-compose.ci.yml logs
+      - name: Start mediators
+        run: docker-compose -f docker-compose.ci.yml up -d opencr shr fhir-converter
+
+      - name: Display docker logs for SHR
+        run: docker-compose -f docker-compose.ci.yml logs shr
+
+      - name: Display container status
+        run: docker-compose -f docker-compose.ci.yml ps
 
       - name: Run General Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-77f89792-c73b-4c75-a450-5cb6f79230d4)
         env: 
