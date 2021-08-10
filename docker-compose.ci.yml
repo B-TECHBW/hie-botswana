@@ -155,7 +155,7 @@ services:
       - $POSTMAN_COLLECTION
     volumes:
       - ./.postman:/.postman
-    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --bail --timeout-request 10000
+    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 10000
     networks:
       - hie
   # Not necessary
