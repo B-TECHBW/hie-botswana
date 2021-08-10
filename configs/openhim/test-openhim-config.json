@@ -307,7 +307,7 @@
           "forwardAuthHeader": false,
           "name": "Add/Get Resources",
           "secured": false,
-          "host": "shr",
+          "host": "opencr",
           "port": 3000,
           "path": "",
           "pathTransform": "s/CR\\/fhir/fhir/g",

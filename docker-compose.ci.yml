@@ -160,15 +160,17 @@ services:
       - $POSTMAN_COLLECTION
     volumes:
       - ./.postman:/.postman
-    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000
+    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000 --delay-request 500
     networks:
       - hie
   
   # OpenHIM Config
   openhim-config:
     profiles: ["support"]
+    environment:
+    - PASSWORD=openhim
     container_name: openhim-config
-    image: ghcr.io/i-tech-uw/openhim-config:main
+    image: ghcr.io/i-tech-uw/openhim-config:latest
     volumes:
       - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
     networks:
