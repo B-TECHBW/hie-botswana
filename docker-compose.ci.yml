@@ -84,7 +84,7 @@ services:
       - ./configs/shr/mediator_ci.json:/app/config/mediator_docker.json
       - ./configs/openhim:/docker
       
-    entrypoint:  ["./docker/ci-entrypoint.sh"]
+    # entrypoint:  ["./docker/ci-entrypoint.sh"]
 
   shr-fhir:
     image: hapiproject/hapi:latest
@@ -155,7 +155,7 @@ services:
       - $POSTMAN_COLLECTION
     volumes:
       - ./.postman:/.postman
-    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 10000
+    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000
     networks:
       - hie
   # Not necessary
