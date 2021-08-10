@@ -82,8 +82,11 @@ services:
     volumes:
       - ./configs/shr/config_ci.json:/app/config/config_docker.json
       - ./configs/shr/mediator_ci.json:/app/config/mediator_docker.json
-      - ./configs/openhim:/docker  
-    entrypoint:  ["./docker/ci-entrypoint.sh"]
+      - ./configs/openhim/ci-entrypoint.sh:/app/docker/ci-entrypoint.sh
+      - ./configs/openhim/load-openhim-config.js:/app/docker/load-openhim-config.js
+      - ./configs/openhim/test-openhim-config.json:/app/docker/test-openhim-config.json
+        
+    entrypoint:  ["/app/docker/ci-entrypoint.sh"]
 
   shr-fhir:
     image: hapiproject/hapi:latest

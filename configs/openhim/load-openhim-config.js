@@ -11,6 +11,8 @@ const logger = require('../dist/lib/winston');
 let ohConfig = JSON.parse(fs.readFileSync('docker/test-openhim-config.json'));
 
 (async () => {
+  logger.info(`Attempting to load OpenHIM default config at ${config.get("mediator:api:apiURL")}`);
+  
   try {
     await metadataPost(
       config.get("mediator:api:apiURL")+"/metadata", 
