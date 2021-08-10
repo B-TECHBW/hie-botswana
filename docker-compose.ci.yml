@@ -23,6 +23,7 @@ services:
   # OpenCR
   ###
   opencr:
+    profiles: ["mediators"]
     container_name: opencr
     hostname: opencr
     image: intrahealth/opencr:latest
@@ -36,6 +37,7 @@ services:
       - ./configs/opencr/config_ci.json:/src/server/config/config_docker.json
       - ./configs/opencr/mediator_ci.json:/src/server/config/mediator.json
   opencr-fhir:
+    profiles: ["support"]
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
     hostname: opencr-fhir
@@ -50,6 +52,7 @@ services:
     volumes:
       - cr-data:/data/hapi
   opencr-es:
+    profiles: ["support"]
     container_name: es
     image: intrahealth/elasticsearch:latest
     restart: unless-stopped
@@ -71,6 +74,7 @@ services:
   # SHR
   ###
   shr:
+    profiles: ["mediators"]
     container_name: shr
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:v0.1.2
@@ -81,14 +85,10 @@ services:
       - hie
     volumes:
       - ./configs/shr/config_ci.json:/app/config/config_docker.json
-      - ./configs/shr/mediator_ci.json:/app/config/mediator_docker.json
-      - ./configs/openhim/ci-entrypoint.sh:/app/docker/ci-entrypoint.sh
-      - ./configs/openhim/load-openhim-config.js:/app/docker/load-openhim-config.js
-      - ./configs/openhim/test-openhim-config.json:/app/docker/test-openhim-config.json
-        
-    entrypoint:  ["/app/docker/ci-entrypoint.sh"]
-
+      - ./configs/shr/mediator_ci.json:/app/config/mediator_docker.json       
+ 
   shr-fhir:
+    profiles: ["support"]
     image: hapiproject/hapi:latest
     container_name: shr-fhir
     hostname: shr-fhir
@@ -107,6 +107,7 @@ services:
   # OpenHIM
   ###
   openhim-core:
+    profiles: ["support"]
     container_name: openhim-core
     hostname: openhim-core
     image: jembi/openhim-core:latest
@@ -131,6 +132,7 @@ services:
       # - "5052:5052"
       # - "7788:7788"
   mongo-db:
+    profiles: ["support"]
     container_name: mongo-db
     image: mongo:3.4
     volumes:
@@ -140,6 +142,7 @@ services:
       - hie
 
   fhir-converter:
+    profiles: ["mediators"]
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
@@ -160,7 +163,17 @@ services:
     entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000
     networks:
       - hie
-  # Not necessary
+  
+  # OpenHIM Config
+  openhim-config:
+    profiles: ["support"]
+    container_name: openhim-config
+    image: ghcr.io/i-tech-uw/openhim-config:main
+    volumes:
+      - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
+    networks:
+      - hie
+  # UI
   openhim-console:
     profiles: ["ui"]
     image: jembi/openhim-console:latest

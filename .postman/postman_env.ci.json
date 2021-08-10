@@ -31,6 +31,11 @@
 			"key": "opencr-url",
 			"value": "http://opencr:3000",
 			"enabled": true
+		},
+    {
+			"key": "opencr-fhir-url",
+			"value": "http://opencr-fhir:8080",
+			"enabled": true
 		}
 	],
 	"_postman_variable_scope": "environment",
