@@ -56,8 +56,8 @@ jobs:
       - name: Run HL7 <--> FHIR Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-6ae2c5fc-f659-4bc3-8fe0-18b07ab5e57a)
         env: 
           POSTMAN_COLLECTION: https://www.getpostman.com/collections/f5a58cf2d476785aed5f
-        run: docker-compose -f docker-compose.ci.yml up --exit-code-from newman newman 
+        run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
 
       - name: Stop containers
         if: always()
-        run: docker-compose -f docker-compose.ci.yml down    
+        run: docker-compose --profile test -f docker-compose.ci.yml down    
