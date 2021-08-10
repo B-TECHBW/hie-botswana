@@ -18,16 +18,12 @@ jobs:
 
       - name: Pull containers
         run: docker-compose -f docker-compose.ci.yml --profile test pull
-
-      - name: Cache containers
-        uses: satackey/action-docker-layer-caching@v0.0.11
-        continue-on-error: true
-
+        
       - name: Start support containers
         run: docker-compose -f docker-compose.ci.yml up -d openhim-core mongo-db opencr-es opencr-fhir shr-fhir 
         
-      - name: Sleep for 60 seconds
-        run: sleep 60s
+      - name: Sleep for 160 seconds
+        run: sleep 160s
         shell: bash
 
       - name: Start mediators
