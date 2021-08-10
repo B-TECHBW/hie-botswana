@@ -36,22 +36,22 @@ jobs:
       - name: Run General Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-77f89792-c73b-4c75-a450-5cb6f79230d4)
         env: 
           POSTMAN_COLLECTION: https://www.getpostman.com/collections/c58de2e03b071c45dcaa
-        run: docker-compose -f docker-compose.ci.yml up --exit-code-from newman newman 
+        run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
 
       - name: Run Dev Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-583fc285-bcef-4e40-924a-650f9336aa18)
         env: 
           POSTMAN_COLLECTION: https://www.getpostman.com/collections/1daa8e91a9eb6599c323
-        run: docker-compose -f docker-compose.ci.yml up --exit-code-from newman newman 
+        run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
 
       - name: Run CR Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-16a5a3c2-719f-40a6-ad06-a9530d3f2006)
         env: 
           POSTMAN_COLLECTION: https://www.getpostman.com/collections/a410a87102b64366c072
-        run: docker-compose -f docker-compose.ci.yml up --exit-code-from newman newman 
+        run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
 
       - name: Run Laboratory Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-fc0b7d4c-90b3-4774-9156-3e6cb4c97f5f)
         env: 
           POSTMAN_COLLECTION: https://www.getpostman.com/collections/ff5183adca5b5e720338
-        run: docker-compose -f docker-compose.ci.yml up --exit-code-from newman newman 
+        run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
 
       - name: Run HL7 <--> FHIR Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-6ae2c5fc-f659-4bc3-8fe0-18b07ab5e57a)
         env: 
