@@ -26,15 +26,22 @@ jobs:
         run: sleep 120
         shell: bash
 
-      - name: Start mediators
-        run: docker-compose -f docker-compose.ci.yml up -d opencr shr fhir-converter
+      - name: Start SHR
+        run: docker-compose -f docker-compose.ci.yml up -d shr
       
-      - name: Sleep for 120 seconds
-        run: sleep 120
+      - name: Sleep for 10 seconds
+        run: sleep 10
         shell: bash
 
       - name: Display docker logs for SHR
         run: docker-compose -f docker-compose.ci.yml logs shr
+
+      - name: Start other mediators
+        run: docker-compose -f docker-compose.ci.yml up -d opencr fhir-converter
+      
+      - name: Sleep for 30 seconds
+        run: sleep 30
+        shell: bash
 
       - name: Display container status
         run: docker-compose -f docker-compose.ci.yml ps

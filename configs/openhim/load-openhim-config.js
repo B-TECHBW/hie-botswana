@@ -16,7 +16,7 @@ let ohConfig = JSON.parse(fs.readFileSync('docker/test-openhim-config.json'));
       config.get("mediator:api:apiURL")+"/metadata", 
       ohConfig,
       config.get("mediator:api:username"),
-      config.get("mediator:api:password"),
+      "openhim-password",
       !config.get("mediator:api:trustSelfSigned")
     );
 
