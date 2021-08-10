@@ -82,6 +82,10 @@ services:
     volumes:
       - ./configs/shr/config_ci.json:/app/config/config_docker.json
       - ./configs/shr/mediator_ci.json:/app/config/mediator_docker.json
+      - ./configs/openhim:/docker
+      
+    entrypoint:  ["./configs/openhim/ci-entrypoint.sh"]
+
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -96,7 +100,6 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-
 
   ###
   # OpenHIM
