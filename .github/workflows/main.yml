@@ -18,16 +18,20 @@ jobs:
 
       - name: Pull containers
         run: docker-compose -f docker-compose.ci.yml --profile test pull
-        
+
       - name: Start support containers
         run: docker-compose -f docker-compose.ci.yml up -d openhim-core mongo-db opencr-es opencr-fhir shr-fhir 
         
-      - name: Sleep for 160 seconds
-        run: sleep 160s
+      - name: Sleep for 240 seconds
+        run: sleep 240
         shell: bash
 
       - name: Start mediators
         run: docker-compose -f docker-compose.ci.yml up -d opencr shr fhir-converter
+      
+      - name: Sleep for 240 seconds
+        run: sleep 240
+        shell: bash
 
       - name: Display docker logs for SHR
         run: docker-compose -f docker-compose.ci.yml logs shr
