@@ -84,7 +84,7 @@ services:
       - ./configs/shr/mediator_ci.json:/app/config/mediator_docker.json
       - ./configs/openhim:/docker
       
-    entrypoint:  ["./configs/openhim/ci-entrypoint.sh"]
+    entrypoint:  ["./docker/ci-entrypoint.sh"]
 
   shr-fhir:
     image: hapiproject/hapi:latest
