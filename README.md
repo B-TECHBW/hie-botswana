@@ -17,8 +17,6 @@
     ```
 4. Run Postman Tests on Setup: https://www.postman.com/openme/workspace/botswana-hie/overview
 
-
-
 ## Componenets
 - NGINX Reverse Proxy
 - Open Client Registry (https://github.com/intrahealth/client-registry)
