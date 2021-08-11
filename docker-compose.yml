@@ -93,7 +93,7 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:latest
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.1.2
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -172,7 +172,7 @@ services:
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
-    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:docker-fixes
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:v3.0.1
     volumes:
       - ./configs/fhir-converter/config.json:/app/config.json
       - /app/src/service-templates

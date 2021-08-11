@@ -1,5 +1,5 @@
 # Botswana Health Information Exchange - Reference Implementation
-[![Build HIE](https://github.com/B-TECHBW/hie-botswana/actions/workflows/build.yml/badge.svg)](https://github.com/B-TECHBW/hie-botswana/actions/workflows/build.yml)
+[![CI](https://github.com/B-TECHBW/hie-botswana/actions/workflows/main.yml/badge.svg)](https://github.com/B-TECHBW/hie-botswana/actions/workflows/main.yml)
 
 ## Install Instructions
 1. Install `docker` and `docker-compose` commands:
@@ -15,7 +15,9 @@
     cd hie-botswana
     docker-compose up -d 
     ```
-4. Run Postman Tests on Setup: (TODO)
+4. Run Postman Tests on Setup: https://www.postman.com/openme/workspace/botswana-hie/overview
+
+
 
 ## Componenets
 - NGINX Reverse Proxy
