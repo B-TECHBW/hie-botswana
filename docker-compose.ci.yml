@@ -167,8 +167,6 @@ services:
   # OpenHIM Config
   openhim-config:
     profiles: ["support"]
-    environment:
-    - PASSWORD=openhim
     container_name: openhim-config
     image: ghcr.io/i-tech-uw/openhim-config:latest
     volumes:

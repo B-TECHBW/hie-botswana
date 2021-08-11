@@ -26,6 +26,9 @@ jobs:
         run: sleep 120
         shell: bash
 
+      - name: Display docker logs for openhim config
+        run: docker-compose -f docker-compose.ci.yml logs openhim-config
+
       - name: Start other mediators
         run: docker-compose -f docker-compose.ci.yml --profile mediators up -d
       
