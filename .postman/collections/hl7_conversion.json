@@ -1,0 +1,261 @@
+{
+	"info": {
+		"_postman_id": "6ae2c5fc-f659-4bc3-8fe0-18b07ab5e57a",
+		"name": "5. HL7v2 to FHIR",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Send Registration (ADT04)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Body matches string\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Murambi\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "MSH|^~\\&|ADM||||202106161515||ADT^A04|2546|D|2.4|||AL|NE|\nEVN||202106161515|||ZZHGGMMO^Healthpost^Mmopane|202106161515|\nPID|1||NEW||Murambi^Tawanda^^^^^^L||19880616|M||CT|Plot 1980^^Gaborone^B^0101||26771722108||||||111112233\nPV1|1|O|HGGMMO||||ZZHGGMMO^Healthpost^Mmopane^^^^^^^^^^XX|||||||||||POV||U|||||||||||||||||||GGC||REG|||202106161515|\nROL|1|AD|AT|ZZHGGMMO^Healthpost^Mmopane^^^^^^^\n"
+				},
+				"url": {
+					"raw": "{{openhim-url}}/72f/convert/hl7v2/ADT_A01.hbs",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"72f",
+						"convert",
+						"hl7v2",
+						"ADT_A01.hbs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send Lab Result (ORU)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Body FHIR Bundle\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.fhirResource.resourceType).to.eq(\"Bundle\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "MSH|^~\\&|LAB|GGC|||202106101550||ORU^R01|165293.1|D|\nPID|1|TEST0062404|GG00042482^^^^MR^GGC~GG5714^^^^PI^GGC~TEST0062404^^^^HUB^GGC||Murambi^Tawanda||19880616|M||CT|Plot 1011^^Gaborone^Botswana^00267|||||M|| ZG0000044218|\nOBR|1|MOH001^LAB|68222^LAB|COVID^SARS-CoV-2 PCR^L|||202106031400|||||||202106101545||ZZHGGMMO^Healthpost^Mmopane||00049731||||||LAB|F||^^^^^R|\nOBX|1|ST|SARS-CoV-2 PCR^SARS-CoV-2 PCR^L||INCONCLUSIVE|||N||A^S|F||||GNHL^National Health Laboratory^L|\nOBX|2|ST|S-Cov-2 RVW^SARS-CoV-2 PCR REVIEW^L||.|||N||A^S|F|||202106101549|GNHL^National Health Laboratory^L|\nNTE|1|\nNTE|2|\nNTE|3||SARS-CoV-2 PCR Tests Authorised by: MEDITECH|\nNTE|4||Authorised Date: 10/06/21 1549|\n"
+				},
+				"url": {
+					"raw": "{{openhim-url}}/72f/convert/hl7v2/ORU_R01.hbs",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"72f",
+						"convert",
+						"hl7v2",
+						"ORU_R01.hbs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Send Lab Result with Omang (ORU)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Body FHIR Bundle\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.fhirResource.resourceType).to.eq(\"Bundle\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "MSH|^~\\&|LAB|GGC|||202106101550||ORU^R01|165293.1|D|\nPID|1|TEST0062404|GG00042482^^^^MR^GGC~GG5714^^^^PI^GGC~TEST0062404^^^^HUB^GGC||Murambi^Tawanda||19880616|M||CT|Plot 1011^^Gaborone^Botswana^00267|||||M|| ZG0000044218|23904823048923\nOBR|1|MOH001^LAB|68222^LAB|COVID^SARS-CoV-2 PCR^L|||202106031400|||||||202106101545||ZZHGGMMO^Healthpost^Mmopane||00049731||||||LAB|F||^^^^^R|\nOBX|1|ST|SARS-CoV-2 PCR^SARS-CoV-2 PCR^L||INCONCLUSIVE|||N||A^S|F||||GNHL^National Health Laboratory^L|\nOBX|2|ST|S-Cov-2 RVW^SARS-CoV-2 PCR REVIEW^L||.|||N||A^S|F|||202106101549|GNHL^National Health Laboratory^L|\nNTE|1|\nNTE|2|\nNTE|3||SARS-CoV-2 PCR Tests Authorised by: MEDITECH|\nNTE|4||Authorised Date: 10/06/21 1549|\n"
+				},
+				"url": {
+					"raw": "{{openhim-url}}/72f/convert/hl7v2/ORU_R01.hbs",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"72f",
+						"convert",
+						"hl7v2",
+						"ORU_R01.hbs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Translate Lab Order TO HL7V2 (ORU)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"example-bw-lab-bundle\",\n  \"type\": \"document\",\n  \"entry\": [\n    {\n      \"resource\": {\n        \"resourceType\": \"Composition\",\n        \"id\": \"example-bw-lab-composition\",\n        \"meta\": {\n          \"profile\": [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-lab-composition\"\n          ]\n        },\n        \"text\": {\n          \"status\": \"generated\",\n          \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative</b></p><p><b>status</b>: active</p><p><b>type</b>: <span title=\\\"Codes: \\\">document</span></p><p><b>date</b>: 2021-06-06</p><p><b>author</b>: <a href=\\\"example-bw-practitioner\\\">example-bw-practitioner</a></p><p><b>title</b>: BW Lab Order Composition</p></div>\"\n        },\n        \"status\": \"active\",\n        \"type\": {\n          \"coding\": [\n            {\n              \"code\": \"document\"\n            }\n          ]\n        },\n        \"subject\": {\n          \"reference\": \"Patient/example-bw-patient\"\n        },\n        \"date\": \"2021-06-06\",\n        \"author\": [\n          {\n            \"reference\": \"example-bw-practitioner\"\n          }\n        ],\n        \"title\": \"BW Lab Order Composition\",\n        \"section\": [\n          {\n            \"entry\": [\n              {\n                \"reference\": \"Task/example-bw-task-requested\"\n              }\n            ]\n          },\n          {\n            \"entry\": [\n              {\n                \"reference\": \"ServiceRequest/example-bw-pims-service-request-profile\"\n              },\n              {\n                \"reference\": \"ServiceRequest/example-bw-pims-service-request-1\"\n              },\n              {\n                \"reference\": \"ServiceRequest/example-bw-pims-service-request-2\"\n              }\n            ]\n          }\n        ]\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Patient\",\n        \"id\": \"example-bw-patient\",\n        \"meta\": {\n          \"profile\": [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-patient\"\n          ]\n        },\n        \"text\": {\n          \"status\": \"generated\",\n          \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative</b></p><p><b>identifier</b>: MR: &lt;OmangNumber&gt;</p><p><b>name</b>: Bw TestPatient</p><p><b>gender</b>: female</p><p><b>birthDate</b>: 1988-03-02</p></div>\"\n        },\n        \"identifier\": [\n          {\n            \"type\": {\n              \"coding\": [\n                {\n                  \"code\": \"MR\"\n                }\n              ]\n            },\n            \"system\": \"http://moh.bw.org/ext/identifier/omang\",\n            \"value\": \"{{$randomUUID}}\"\n          }\n        ],\n        \"name\": [\n          {\n            \"family\": \"TestPatient\",\n            \"given\": [\"BW\"]\n          }\n        ],\n        \"gender\": \"female\",\n        \"birthDate\": \"1988-03-02\"\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Practitioner\",\n        \"id\": \"example-bw-pims-practitioner\",\n        \"meta\": {\n          \"profile\": [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-practitioner\"\n          ]\n        },\n        \"text\": {\n          \"status\": \"generated\",\n          \"div\": \"<div xmlns=\\\"http://www.w3.org/1999/xhtml\\\"><p><b>Generated Narrative</b></p><p><b>identifier</b>: id: RequesterID</p><p><b>name</b>: BW PimsProvider</p></div>\"\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://<pims-instance-specific-url>/ext/practitioner/identifier\",\n            \"value\": \"RequesterID\"\n          }\n        ],\n        \"name\": [\n          {\n            \"text\": \"BW PimsProvider\"\n          }\n        ]\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Task\",\n        \"id\": \"example-bw-task-requested\",\n        \"meta\": {\n          \"profile\": [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-lab-task\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://<pims-instance-specific-url>/ext/lab-task/identifier\",\n            \"value\": \"<PimsSpecificLabOrderID>\"\n          }\n        ],\n        \"basedOn\": [\n          {\n            \"reference\": \"ServiceRequest/example-bw-pims-service-request-1\"\n          }\n        ],\n        \"status\": \"requested\",\n        \"intent\": \"order\",\n        \"for\": {\n          \"reference\": \"Patient/example-bw-patient\"\n        },\n        \"authoredOn\": \"2021-05-20\",\n        \"owner\": {\n          \"reference\": \"Practitioner/example-bw-pims-practitioner\"\n        }\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"ServiceRequest\",\n        \"id\": \"example-bw-pims-service-request-1\",\n        \"identifier\":[\n            {\n                \"system\": \"http://<pims-instance-specific-url>/ext/lab-task/identifier\",\n                \"value\": \"<PimsSpecificLabOrderID>\"\n            }\n        ],\n        \"meta\": {\n          \"profile\": [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-lab-service-request\"\n          ]\n        },\n        \"status\": \"active\",\n        \"intent\": \"order\",\n        \"code\": {\n          \"coding\": [\n            {\n              \"system\": \"http://moh.bw.org/ext/laboratory/pims-lab-test-code\",\n              \"code\": \"pims-labtest-code\"\n            }\n          ]\n        },\n        \"subject\": {\n          \"reference\": \"Patient/example-bw-patient\"\n        },\n        \"authoredOn\": \"2021-05-20\"\n      }\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{openhim-url}}/72f/convert/fhir",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"72f",
+						"convert",
+						"fhir"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Translate HL7 to JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+							"});",
+							"",
+							"pm.test(\"Has segments\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData._segments).to.exist;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "MSH|^~\\&|LAB||LAB||202106171125||ORM^O01|2556|D|2.4|||AL|NE\nPID|1||GG00042482||Murambi^Tawanda^^^^^L||19880616|M|||Maratanang^^Gaborone^B^0101||26772775810|||M|| ZG0000044218|111112233\nORC|NW| MOH001^LAB|ABC1234567||||^^^^^R||202106030000|||\nOBR|1| MOH001^LAB||COVID^SARS-CoV-2-PCR|R||202106170000|||||||202106170000|ZZHGGMMO^Mmopane^^^^^^^|||\n"
+				},
+				"url": {
+					"raw": "{{openhim-url}}/72f/convert/raw-hl7v2",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"72f",
+						"convert",
+						"raw-hl7v2"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "postman",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "postman",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "tmp",
+			"value": "hl7v2/ADT_A01.hbs"
+		},
+		{
+			"key": "hl72fhir_endpoint",
+			"value": "openhim.moh.org.bw/72f"
+		}
+	]
+}

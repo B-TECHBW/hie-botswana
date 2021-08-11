@@ -1,0 +1,113 @@
+{
+	"info": {
+		"_postman_id": "583fc285-bcef-4e40-924a-650f9336aa18",
+		"name": "2. Dev Env Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SHR HAPI FHIR JPA Server should be up",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Returns capability statement\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.resourceType).to.eql(\"CapabilityStatement\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{shr-fhir-url}}/fhir/metadata",
+					"host": [
+						"{{shr-fhir-url}}"
+					],
+					"path": [
+						"fhir",
+						"metadata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SHR should be up",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{shr-url}}/",
+					"host": [
+						"{{shr-url}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CR HAPI FHIR JPA Server should be up",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Returns capability statement\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.resourceType).to.eql(\"CapabilityStatement\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{opencr-fhir-url}}/fhir/metadata",
+					"host": [
+						"{{opencr-fhir-url}}"
+					],
+					"path": [
+						"fhir",
+						"metadata"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
