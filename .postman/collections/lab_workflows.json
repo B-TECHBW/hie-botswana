@@ -1,0 +1,292 @@
+{
+	"info": {
+		"_postman_id": "fc0b7d4c-90b3-4774-9156-3e6cb4c97f5f",
+		"name": "4. Laboratory Workflows",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get test bundle",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response is a Bundle of FHIR resources\", function () {",
+							"    var bundle = pm.response.json();",
+							"    pm.expect(bundle.resourceType).to.eql(\"Bundle\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{openhim-url}}/SHR/lab",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"SHR",
+						"lab"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Patient To SHR",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Patient has correct id\", function() {",
+							"    var id = jsonData.id;",
+							"    var mrn = pm.collectionVariables.get(\"patientMRN\");",
+							"    ",
+							"    pm.expect(id).to.eq(mrn);",
+							"});",
+							"pm.test(\"Patient has correct birth date\", function() {",
+							"    var patient = jsonData;",
+							"    var dob = pm.collectionVariables.get(\"birthDate\");",
+							"    pm.expect(patient.birthDate).to.eq(dob)",
+							"});",
+							"",
+							"pm.test(\"Patient has the correct name\", function() {",
+							"    var patient = jsonData;",
+							"    var ln = pm.collectionVariables.get(\"lastName\");",
+							"    pm.expect(patient.name[0].family).to.eq(ln);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"pm.collectionVariables.set(\"patientMRN\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"pm.collectionVariables.set(\"omang\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"pm.collectionVariables.set(\"birthDate\", moment().subtract(_.random(1,40), 'years').subtract(_.random(1,150), 'days').format(\"YYYY-MM-DD\"));",
+							"pm.collectionVariables.set(\"sex\", Math.random() < 0.5 ? \"male\" : \"female\");",
+							"pm.collectionVariables.set(\"firstName\", pm.variables.replaceIn('{{$randomFirstName}}'));",
+							"pm.collectionVariables.set(\"lastName\", pm.variables.replaceIn('{{$randomLastName}}'));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"resourceType\" : \"Patient\",\n  \"id\" : \"{{patientMRN}}\",\n  \"meta\" : {\n    \"profile\" : [\n      \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-patient\"\n    ]\n  },\n  \"identifier\" : [\n    {\n      \"system\" : \"http://moh.bw.org/ext/identifier/omang\",\n      \"value\" : \"{{omang}}\",\n      \"use\" : \"official\"\n    },\n    {\n        \"value\": \"urn:uuid:{{patientMRN}}\",\n        \"type\" : {\n        \"coding\" : [\n          {\n            \"code\" : \"MR\"\n          }\n        ]\n        },\n        \"system\" : \"urn:ietf:rfc:3986\"\n    }\n  ],\n  \"name\" : [\n    {\n      \"use\": \"official\",\n      \"family\": \"{{lastName}}\",\n      \"given\": [\n        \"{{firstName}}\"\n      ]\n    }\n  ],\n  \"gender\" : \"{{sex}}\",\n  \"birthDate\" : \"{{birthDate}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{openhim-url}}/SHR/fhir/Patient",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"SHR",
+						"fhir",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add New Order Bundle To SHR",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"pm.collectionVariables.set(\"patientMRN\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"pm.collectionVariables.set(\"omang\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"pm.collectionVariables.set(\"birthDate\", moment().subtract(_.random(1,40), 'years').subtract(_.random(1,150), 'days').format(\"YYYY-MM-DD\"));",
+							"pm.collectionVariables.set(\"sex\", Math.random() < 0.5 ? \"male\" : \"female\");",
+							"pm.collectionVariables.set(\"firstName\", pm.variables.replaceIn('{{$randomFirstName}}'));",
+							"pm.collectionVariables.set(\"lastName\", pm.variables.replaceIn('{{$randomLastName}}'));",
+							"",
+							"pm.collectionVariables.set(\"practitionerId\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"pm.collectionVariables.set(\"taskId\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"pm.collectionVariables.set(\"serviceRequestId\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							"pm.collectionVariables.set(\"compositionId\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.eq(200);",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"All PUTs succeeded\", function () {",
+							"    var bundle = pm.response.json();",
+							"",
+							"    pm.expect(bundle.entry.length).to.eq(5);",
+							"    ",
+							"    bundle.entry.forEach(function(e) {",
+							"        pm.expect(e.response.status.toString()).to.include(\"201\")",
+							"    })});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "postman",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "postman",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"resourceType\": \"Bundle\",\n  \"id\": \"{{$guid}}\",\n  \"type\": \"document\",\n  \"entry\": [\n    {\n      \"resource\": {\n        \"resourceType\": \"Composition\",\n        \"id\": \"{{$guid}}\",\n        \"meta\": {\n          \"profile\": [\n            \"http://i-tech-uw.github.io/laboratory-workflows-ig/StructureDefinition/laboratory-composition\"\n          ]\n        },\n        \"status\": \"final\",\n        \"type\": {\n          \"coding\": [\n            {\n              \"code\": \"document\"\n            }\n          ]\n        },\n        \"subject\": {\n          \"reference\": \"Patient/{{patientMRN}}\"\n        },\n        \"date\": \"2021-06-08\",\n        \"author\": [\n          {\n            \"reference\": \"Practitioner/{{practitionerId}}\"\n          }\n        ],\n        \"title\": \"Laboratory Single Order Composition\",\n        \"section\": [\n          {\n            \"entry\": [\n              {\n                \"reference\": \"Task/{{taskId}}\"\n              }\n            ]\n          },\n          {\n            \"entry\": [\n              {\n                \"reference\": \"ServiceRequest/{{serviceRequestId}}\"\n              }\n            ]\n          }\n        ]\n      }\n    },\n    {\"resource\": {\n        \"resourceType\" : \"Patient\",\n        \"id\" : \"{{patientMRN}}\",\n        \"meta\" : {\n            \"profile\" : [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-patient\"\n            ]\n        },\n        \"identifier\" : [\n            {\n            \"system\" : \"http://moh.bw.org/ext/identifier/omang\",\n            \"value\" : \"{{omang}}\",\n            \"use\" : \"official\"\n            },\n            {\n                \"value\": \"urn:uuid:{{patientMRN}}\",\n                \"type\" : {\n                \"coding\" : [\n                {\n                    \"code\" : \"MR\"\n                }\n                ]\n                },\n                \"system\" : \"urn:ietf:rfc:3986\"\n            }\n        ],\n        \"name\" : [\n            {\n            \"use\": \"official\",\n            \"family\": \"{{lastName}}\",\n            \"given\": [\n                \"{{firstName}}\"\n            ]\n            }\n        ],\n        \"gender\" : \"{{sex}}\",\n        \"birthDate\" : \"{{birthDate}}\"\n        }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Practitioner\",\n        \"id\": \"{{practitionerId}}\",\n        \"meta\": {\n          \"profile\": [\n            \"http://i-tech-uw.github.io/laboratory-workflows-ig/StructureDefinition/laboratory-practitioner\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://fhir.moh.org.bw/ext/provider/identifier\",\n            \"value\": \"{{practitionerId}}\"\n          }\n        ],\n        \"name\": [\n          {\n            \"text\": \"{{practitionerName}}\"\n          }\n        ]\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"Task\",\n        \"id\": \"{{taskId}}\",\n        \"meta\": {\n          \"profile\": [\n            \"http://i-tech-uw.github.io/laboratory-workflows-ig/StructureDefinition/laboratory-task\"\n          ]\n        },\n        \"identifier\": [\n          {\n            \"system\": \"http://i-tech-uw.github.io/lab-workflow-ig/ext/task/identifier\",\n            \"value\": \"{{taskId}}\"\n          }\n        ],\n        \"basedOn\": [\n          {\n            \"reference\": \"ServiceRequest/{{serviceRequestId}}\",\n            \"type\": \"ServiceRequest\"\n          }\n        ],\n        \"status\": \"requested\",\n        \"intent\": \"order\",\n        \"for\": {\n          \"reference\": \"Patient/{{patientMRN}}\"\n        },\n        \"authoredOn\": \"2021-02-20\",\n        \"owner\": {\n          \"reference\": \"Practitioner/{{practitionerId}}\"\n        }\n      }\n    },\n    {\n      \"resource\": {\n        \"resourceType\": \"ServiceRequest\",\n        \"id\": \"{{serviceRequestId}}\",\n        \"meta\": {\n          \"profile\": [\n            \"http://i-tech-uw.github.io/laboratory-workflows-ig/StructureDefinition/laboratory-service-request\"\n          ]\n        },\n        \"status\": \"active\",\n        \"intent\": \"order\",\n        \"code\": {\n          \"coding\": [\n            {\n              \"system\": \"http://loinc.org\",\n              \"code\": \"14682-9\",\n              \"display\": \"<Not required for PIMS or IPMS>\"\n            },\n            {\n                \"system\": \"https://api.openconceptlab.org/orgs/B-TECHBW/sources/PIMS-LAB-TEST-DICT/\",\n                \"version\": \"v0.0.0\",\n                \"code\": \"<PIMS-LAB-TEST-ID>\",\n                \"display\": \"PIMS Lab Test Name - See https://app.openconceptlab.org/#/orgs/B-TECHBW/sources/PIMS-LAB-TEST-DICT/concepts/\"\n            },\n            {\n                \"system\": \"https://api.openconceptlab.org/orgs/B-TECHBW/sources/PIMS-LAB-PROFILE-DICT/\",\n                \"version\": \"v0.0.0\",\n                \"code\": \"<PIMS-LAB-PROFILE-ID>\",\n                \"display\": \"PIMS Profile Name - See https://app.openconceptlab.org/#/orgs/B-TECHBW/sources/PIMS-LAB-PROFILE-DICT/concepts/\"\n            }\n          ]\n        },\n        \"subject\": {\n          \"reference\": \"Patient/{{patientMRN}}\"\n        }\n      }\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{openhim-url}}/SHR/lab",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"SHR",
+						"lab"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "postman",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "postman",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "patientMRN",
+			"value": ""
+		},
+		{
+			"key": "omang",
+			"value": ""
+		},
+		{
+			"key": "birthDate",
+			"value": ""
+		},
+		{
+			"key": "sex",
+			"value": ""
+		},
+		{
+			"key": "firstName",
+			"value": ""
+		},
+		{
+			"key": "lastName",
+			"value": ""
+		},
+		{
+			"key": "practitionerId",
+			"value": ""
+		},
+		{
+			"key": "taskId",
+			"value": ""
+		},
+		{
+			"key": "serviceRequestId",
+			"value": ""
+		},
+		{
+			"key": "compositionId",
+			"value": ""
+		}
+	]
+}

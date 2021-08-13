@@ -19,6 +19,7 @@ services:
   # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
   ###
   nginx:
+    profiles: ['domain']
     image: nginx:latest
     container_name: nginx
     hostname: nginx
@@ -44,6 +45,8 @@ services:
     hostname: opencr
     image: intrahealth/opencr:latest
     restart: unless-stopped
+    ports:
+      - 3001:3000
     environment:
       - NODE_ENV=docker
       - HAPI_FHIR_URL=http://opencr-fhir:8080/fhir/metadata
@@ -60,6 +63,8 @@ services:
     container_name: opencr-fhir
     hostname: opencr-fhir
     restart: unless-stopped
+    ports:
+      - 8082:8080
     networks:
       - hie
     healthcheck:
@@ -95,6 +100,8 @@ services:
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:v0.1.2
     restart: unless-stopped
+    ports:
+      - 3000:3000
     environment:
       - NODE_ENV=docker
     networks:
@@ -107,6 +114,8 @@ services:
     container_name: shr-fhir
     hostname: shr-fhir
     restart: unless-stopped
+    ports:
+      - 8081:8080
     volumes:
       - shr-data:/data/hapi
     networks:
@@ -116,7 +125,6 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-
 
   ###
   # OpenHIM
@@ -150,6 +158,8 @@ services:
     hostname: openhim-console
     image: jembi/openhim-console:latest
     restart: unless-stopped
+    ports:
+      - 80:80
     volumes:
       - ./configs/openhim-console/default.json:/usr/share/nginx/html/config/default.json
     healthcheck:
@@ -172,13 +182,23 @@ services:
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
+    ports:
+      - 2019:2019
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:v3.0.1
     volumes:
       - ./configs/fhir-converter/config.json:/app/config.json
       - /app/src/service-templates
     networks:
       - hie
-      
+  # Newman Tests
+  newman:
+    profiles: ["test"]
+    image: postman/newman
+    volumes:
+      - ./.postman:/.postman
+    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000 --delay-request 500
+    networks:
+      - hie
 volumes:
   es:
     driver: local

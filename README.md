@@ -15,7 +15,12 @@
     cd hie-botswana
     docker-compose up -d 
     ```
-4. Run Postman Tests on Setup: https://www.postman.com/openme/workspace/botswana-hie/overview
+4. Run Postman Tests on Setup:
+    (https://www.postman.com/openme/workspace/botswana-hie/overview)
+    ```
+    cd hie-botswana
+    
+    ```
 
 ## Componenets
 - NGINX Reverse Proxy
