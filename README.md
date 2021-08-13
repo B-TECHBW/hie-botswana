@@ -19,7 +19,7 @@
     (https://www.postman.com/openme/workspace/botswana-hie/overview)
     ```
     cd hie-botswana
-    
+    ./.postman/run-tests-offline.sh  
     ```
 
 ## Componenets
