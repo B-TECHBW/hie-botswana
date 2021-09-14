@@ -55,9 +55,9 @@ services:
     volumes:
       - ./configs/opencr/config_docker.json:/src/server/config/config_docker.json
       - ./configs/opencr/mediator.json:/src/server/config/mediator.json
-      # - ./configs/opencr/app.js:/src/server/lib/app.js
       - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/privkey1.pem:/src/server/serverCertificates/server_key.pem
       - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/fullchain1.pem:/src/server/serverCertificates/server_cert.pem   
+
   opencr-fhir:
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
@@ -74,6 +74,7 @@ services:
       retries: 3
     volumes:
       - cr-data:/data/hapi
+
   opencr-es:
     container_name: es
     image: intrahealth/elasticsearch:latest
@@ -98,7 +99,7 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.1.2
+    image: ghcr.io/i-tech-uw/shared-health-record:latest
     restart: unless-stopped
     ports:
       - 3000:3000
@@ -109,6 +110,7 @@ services:
     volumes:
       - ./configs/shr/config_docker_template.json:/app/config/config_docker.json
       - ./configs/shr/mediator.json:/app/config/mediator_docker.json
+
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -184,21 +186,23 @@ services:
     restart: unless-stopped
     ports:
       - 2019:2019
-    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:v3.0.1
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:latest
     volumes:
       - ./configs/fhir-converter/config.json:/app/config.json
       - /app/src/service-templates
     networks:
       - hie
+
   # Newman Tests
-  newman:
-    profiles: ["test"]
-    image: postman/newman
-    volumes:
-      - ./.postman:/.postman
-    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000 --delay-request 500
-    networks:
-      - hie
+  # newman:
+  #   profiles: ["test"]
+  #   image: postman/newman
+  #   volumes:
+  #     - ./.postman:/.postman
+  #   entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000 --delay-request 500
+  #   networks:
+  #     - hie
+
 volumes:
   es:
     driver: local
