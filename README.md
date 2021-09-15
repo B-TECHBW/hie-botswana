@@ -10,19 +10,26 @@
     ```sh
     git clone https://github.com/B-TECHBW/hie-botswana.git
     ```
-3. Start up containers:
+3. Start up core containers:
     ```sh
     cd hie-botswana
-    docker-compose up -d 
+    docker-compose --profile core up -d 
     ```
-4. Run Postman Tests on Setup:
+4. Test and set up OpenHIM at http://localhost:80. Change the default password.
+
+5. Start up mediators:
+    ```sh
+    docker-compose --profile mediator up -d
+    ```
+
+6. Run Postman Tests on Setup:
     (https://www.postman.com/openme/workspace/botswana-hie/overview)
     ```
     cd hie-botswana
     ./.postman/run-tests-offline.sh  
     ```
 
-## Componenets
+## Components
 - NGINX Reverse Proxy
 - Open Client Registry (https://github.com/intrahealth/client-registry)
 - OpenHIM (http://openhim.org/)
