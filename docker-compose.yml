@@ -198,11 +198,34 @@ services:
       - 2019:2019
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:latest
     volumes:
-      - ./configs/fhir-converter/config.json:/app/config.json
+      - ./configs/fhir-converter/config_port.json:/app/config.json
       - /app/src/service-templates
     networks:
       - hie
-
+  
+  mllp-adapter:
+    profiles: ["mediator"]
+    image: rivethealth/mllp-http
+    hostname: mllp
+    container_name: mllp
+    ports:
+    - 2575:2575
+    command:
+      - "mllp2http"
+      - "--log-level=info"
+      - "--content-type=text/plain"
+      - "http://openhim-core:5001/mllp/"
+    networks:
+    - hie
+  
+  httpbin:
+    profiles: ["test"]
+    image: kennethreitz/httpbin
+    container_name: httpbin
+    hostname: httpbin
+    networks:
+    - hie
+  
   # Newman Tests
   # newman:
   #   profiles: ["test"]
@@ -213,6 +236,14 @@ services:
   #   networks:
   #     - hie
 
+  mllp_tests:
+    profiles: ["test"]
+    container_name: mllp_tests
+    build: ./test
+    networks:
+      - hie
+    volumes:
+      - ./test:/test
 volumes:
   es:
     driver: local

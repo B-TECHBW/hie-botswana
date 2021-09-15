@@ -152,6 +152,20 @@ services:
     networks:
       - hie
 
+  mllp-adapter:
+    profiles: ["mediators"]
+    image: rivethealth/mllp-http
+    hostname: mllp
+    container_name: mllp
+    ports:
+    - 2575:2575
+    command:
+      - "mllp2http"
+      - "--log-level=info"
+      - "http://httpbin/post"
+    networks:
+    - hie
+
   # Newman Tests
   newman:
     profiles: ["test"]
@@ -162,6 +176,22 @@ services:
     networks:
       - hie
   
+  mllp_tests:
+    profiles: ["test"]
+    container_name: mllp_tests
+    build: ./test
+    networks:
+      - hie
+    volumes:
+      - ./test:/test
+  
+  httpbin:
+    profiles: ["test"]
+    image: kennethreitz/httpbin
+    container_name: httpbin
+    hostname: httpbin
+    networks:
+    - hie
   # OpenHIM Config
   openhim-config:
     profiles: ["support"]
