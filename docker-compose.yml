@@ -213,6 +213,7 @@ services:
     command:
       - "mllp2http"
       - "--log-level=info"
+      - "--content-type=text/plain"
       - "http://openhim-core:5001/mllp/"
     networks:
     - hie
