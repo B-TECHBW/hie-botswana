@@ -19,17 +19,18 @@ services:
   # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
   ###
   nginx:
-    profiles: ['domain']
     image: nginx:latest
     container_name: nginx
     hostname: nginx
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
+      - "8080:8080"
+      - "5001:5001"
+      - "5000:5000"
     volumes:
-      - /home/ubuntu/local/letsencrypt/archive/moh.org.bw:/etc/letsencrypt
-      - ./configs/nginx/nginx.conf:/etc/nginx/nginx.conf
+     # - /home/ubuntu/local/letsencrypt/archive/moh.org.bw:/etc/letsencrypt
+      - ./configs/nginx/nginx.ports.conf:/etc/nginx/nginx.conf
       - nginx-data:/var/www
     networks:
       - hie
@@ -41,6 +42,7 @@ services:
   # OpenCR
   ###
   opencr:
+    profiles: ["mediator"]
     container_name: opencr
     hostname: opencr
     image: intrahealth/opencr:latest
@@ -53,12 +55,13 @@ services:
     networks:
       - hie
     volumes:
-      - ./configs/opencr/config_docker.json:/src/server/config/config_docker.json
-      - ./configs/opencr/mediator.json:/src/server/config/mediator.json
-      - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/privkey1.pem:/src/server/serverCertificates/server_key.pem
-      - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/fullchain1.pem:/src/server/serverCertificates/server_cert.pem   
+      - ./configs/opencr/config_port.json:/src/server/config/config_docker.json
+      - ./configs/opencr/mediator_port.json:/src/server/config/mediator.json
+      # - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/privkey1.pem:/src/server/serverCertificates/server_key.pem
+      # - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/fullchain1.pem:/src/server/serverCertificates/server_cert.pem   
 
   opencr-fhir:
+    profiles: ["core"]
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
     hostname: opencr-fhir
@@ -76,6 +79,7 @@ services:
       - cr-data:/data/hapi
 
   opencr-es:
+    profiles: ["core"]
     container_name: es
     image: intrahealth/elasticsearch:latest
     restart: unless-stopped
@@ -97,6 +101,7 @@ services:
   # SHR
   ###
   shr:
+    profiles: ["mediator"]
     container_name: shr
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:latest
@@ -112,6 +117,7 @@ services:
       - ./configs/shr/mediator.json:/app/config/mediator_docker.json
 
   shr-fhir:
+    profiles: ["core"]
     image: hapiproject/hapi:latest
     container_name: shr-fhir
     hostname: shr-fhir
@@ -132,6 +138,7 @@ services:
   # OpenHIM
   ###
   openhim-core:
+    profiles: ["core"]
     container_name: openhim-core
     hostname: openhim-core
     image: jembi/openhim-core:latest
@@ -147,23 +154,24 @@ services:
       retries: 3
     networks:
       - hie
-    ports:
-      - 8080:8080
-      - "5000:5000"
-      - "5001:5001"
+    # ports:
+      # - 8080:8080
+      # - "5000:5000"
+      # - "5001:5001"
       # - "5050:5050"
       # - "5051:5051"
       # - "5052:5052"
       # - "7788:7788"
   openhim-console:
+    profiles: ["core"]
     container_name: openhim-console
     hostname: openhim-console
     image: jembi/openhim-console:latest
     restart: unless-stopped
-    ports:
-      - 80:80
+    # ports:
+    #   - 80:80
     volumes:
-      - ./configs/openhim-console/default.json:/usr/share/nginx/html/config/default.json
+      - ./configs/openhim-console/port.json:/usr/share/nginx/html/config/default.json
     healthcheck:
       test: "curl -sS http://openhim-console || exit 1"
       interval: 30s
@@ -172,6 +180,7 @@ services:
     networks:
       - hie
   mongo-db:
+    profiles: ["core"]
     container_name: mongo-db
     image: mongo:3.4
     volumes:
@@ -181,6 +190,7 @@ services:
       - hie
 
   fhir-converter:
+    profiles: ["mediator"]
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
