@@ -15,14 +15,15 @@
     cd hie-botswana
     docker-compose --profile core up -d 
     ```
-4. Test and set up OpenHIM at http://localhost:80. Change the default password.
+4. Test and set up OpenHIM at http://localhost. Change the default password.
 
 5. Start up mediators:
     ```sh
     docker-compose --profile mediator up -d
     ```
+6. Set up channels, clients, and auth in OpenHIM at http://localhost
 
-6. Run Postman Tests on Setup:
+7. Run Postman Tests on Setup:
     (https://www.postman.com/openme/workspace/botswana-hie/overview)
     ```
     cd hie-botswana
