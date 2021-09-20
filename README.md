@@ -44,7 +44,8 @@ cd hie-botswana
 `./load_package.sh`
 
 ### 4. Boot up Docker containers
-See step #3 in [#install-instructions](Install Instructions) section
+See step #3 in [Install Instructions](https://github.com/B-TECHBW/hie-botswana#install-instructions) section
+
 ## Components
 - NGINX Reverse Proxy
 - Open Client Registry (https://github.com/intrahealth/client-registry)
