@@ -67,6 +67,11 @@ jobs:
           POSTMAN_COLLECTION: https://www.getpostman.com/collections/f5a58cf2d476785aed5f
         run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
 
+      - name: Run PIMS Lab Workflow Tests (https://www.getpostman.com/collections/2ee8ebff39c078bac256)
+        env: 
+          POSTMAN_COLLECTION: https://www.getpostman.com/collections/2ee8ebff39c078bac256
+        run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
+
       - name: Stop containers
         if: always()
         run: docker-compose --profile test -f docker-compose.ci.yml down    
