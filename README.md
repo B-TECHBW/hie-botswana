@@ -30,6 +30,21 @@
     ./.postman/run-tests-offline.sh  
     ```
 
+## Offline Install
+
+### 1. Pull and save images on internet-connected machine
+```sh
+git clone https://github.com/B-TECHBW/hie-botswana.git
+cd hie-botswana
+./dist/build_package.sh
+```
+### 2. Transfer the `dist` folder with the `.tar` files to server
+
+### 3. Unpack `.tar` files to docker images
+`./load_package.sh`
+
+### 4. Boot up Docker containers
+See step #3 in [#install-instructions](Install Instructions) section
 ## Components
 - NGINX Reverse Proxy
 - Open Client Registry (https://github.com/intrahealth/client-registry)

@@ -19,6 +19,7 @@ services:
   # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
   ###
   nginx:
+    profiles: ["core"]
     image: nginx:latest
     container_name: nginx
     hostname: nginx
@@ -154,6 +155,8 @@ services:
       retries: 3
     networks:
       - hie
+    extra_hosts:
+      - "host.docker.internal:172.22.16.1"
     # ports:
       # - 8080:8080
       # - "5000:5000"
@@ -226,7 +229,7 @@ services:
     networks:
     - hie
   
-  Newman Tests
+  # Newman Tests
   newman:
     profiles: ["test"]
     image: postman/newman
@@ -259,3 +262,4 @@ volumes:
     driver: local
 networks:
   hie:
+    driver: host
