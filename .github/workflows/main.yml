@@ -15,10 +15,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
       - name: Pull containers
         run: COMPOSE_PROFILES=mediators,support,test,config docker-compose -f docker-compose.ci.yml pull
 
+      - name: Cache containers
+        uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+        
       - name: Start support containers
         run: docker-compose -f docker-compose.ci.yml --profile support up -d
         
