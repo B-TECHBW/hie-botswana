@@ -46,6 +46,16 @@ cd hie-botswana
 ### 4. Boot up Docker containers
 See step #3 in [Install Instructions](https://github.com/B-TECHBW/hie-botswana#install-instructions) section
 
+## Certificate Management
+For AWS setups, we use Letsencrypt to provide SSL certificates for the domain. See https://nandovieira.com/using-lets-encrypt-in-development-with-nginx-and-aws-route53
+for more guidance.
+
+Certificates are grabbed/managed by the certbot service in the `docker-compose.yaml` file. This service requires the following variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. See https://certbot-dns-route53.readthedocs.io/en/stable/ for information on how to obtain these values in AWS. 
+
+Certificate generation and renewal will eventually be automated, but currently can be run with the following command:
+`sudo -E docker-compose up certbot`
+
+The certificates are loaded into the `certs` volume, which can be mounted in any other docker container, and is primarily used by Nginx.
 ## Components
 - NGINX Reverse Proxy
 - Open Client Registry (https://github.com/intrahealth/client-registry)
