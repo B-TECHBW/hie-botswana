@@ -26,9 +26,7 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "8080:8080"
-      - "5001:5001"
-      - "5000:5000"
+      - "443:443"
     volumes:
       - certs:/etc/letsencrypt
       - ./configs/nginx/nginx.conf:/etc/nginx/nginx.conf
@@ -44,7 +42,7 @@ services:
     profiles: ["support"]
     image: certbot/dns-route53
     container_name: certbot
-    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu-d moh.org.bw -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
+    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
     environment:
     - AWS_ACCESS_KEY_ID
     - AWS_SECRET_ACCESS_KEY
@@ -52,7 +50,7 @@ services:
     - certs:/etc/letsencrypt
     - letsencrypt:/var/lib/letsencrypt
     networks:
-    - sedish
+    - hie
 
   ###
   # OpenCR
@@ -63,8 +61,6 @@ services:
     hostname: opencr
     image: intrahealth/opencr:latest
     restart: unless-stopped
-    ports:
-      - 3001:3000
     environment:
       - NODE_ENV=docker
       - HAPI_FHIR_URL=http://opencr-fhir:8080/fhir/metadata
@@ -73,8 +69,6 @@ services:
     volumes:
       - ./configs/opencr/config_port.json:/src/server/config/config_docker.json
       - ./configs/opencr/mediator_port.json:/src/server/config/mediator.json
-      # - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/privkey1.pem:/src/server/serverCertificates/server_key.pem
-      # - /home/ubuntu/local/letsencrypt/archive/moh.org.bw/fullchain1.pem:/src/server/serverCertificates/server_cert.pem   
 
   opencr-fhir:
     profiles: ["core"]
@@ -82,8 +76,6 @@ services:
     container_name: opencr-fhir
     hostname: opencr-fhir
     restart: unless-stopped
-    ports:
-      - 8082:8080
     networks:
       - hie
     healthcheck:
@@ -122,8 +114,6 @@ services:
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:v0.2.1
     restart: unless-stopped
-    ports:
-      - 3000:3000
     environment:
       - NODE_ENV=docker
     networks:
@@ -138,8 +128,6 @@ services:
     container_name: shr-fhir
     hostname: shr-fhir
     restart: unless-stopped
-    ports:
-      - 8081:8080
     volumes:
       - shr-data:/data/hapi
     networks:
@@ -170,24 +158,13 @@ services:
       retries: 3
     networks:
       - hie
-    extra_hosts:
-      - "host.docker.internal:172.22.16.1"
-    # ports:
-      # - 8080:8080
-      # - "5000:5000"
-      # - "5001:5001"
-      # - "5050:5050"
-      # - "5051:5051"
-      # - "5052:5052"
-      # - "7788:7788"
+
   openhim-console:
     profiles: ["core"]
     container_name: openhim-console
     hostname: openhim-console
     image: jembi/openhim-console:latest
     restart: unless-stopped
-    # ports:
-    #   - 80:80
     volumes:
       - ./configs/openhim-console/port.json:/usr/share/nginx/html/config/default.json
     healthcheck:
@@ -197,6 +174,7 @@ services:
       retries: 3
     networks:
       - hie
+
   mongo-db:
     profiles: ["core"]
     container_name: mongo-db
@@ -212,8 +190,6 @@ services:
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
-    ports:
-      - 2019:2019
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:latest
     volumes:
       - ./configs/fhir-converter/config_port.json:/app/config.json
@@ -226,8 +202,6 @@ services:
     image: rivethealth/mllp-http
     hostname: mllp
     container_name: mllp
-    ports:
-    - 2575:2575
     command:
       - "mllp2http"
       - "--log-level=info"
