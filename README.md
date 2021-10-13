@@ -46,6 +46,14 @@ cd hie-botswana
 ### 4. Boot up Docker containers
 See step #3 in [Install Instructions](https://github.com/B-TECHBW/hie-botswana#install-instructions) section
 
+## Certificate Management
+For AWS setups, we use Letsencrypt to provide SSL certificates for the domain. 
+
+Certificates are grabbed/managed by the certbot docker-compose entry. 
+
+Renewal will eventually be automated, but currently can be run with the following command:
+`docker-compose up certbot`
+
 ## Components
 - NGINX Reverse Proxy
 - Open Client Registry (https://github.com/intrahealth/client-registry)

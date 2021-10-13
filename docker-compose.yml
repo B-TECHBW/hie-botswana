@@ -30,8 +30,8 @@ services:
       - "5001:5001"
       - "5000:5000"
     volumes:
-     # - /home/ubuntu/local/letsencrypt/archive/moh.org.bw:/etc/letsencrypt
-      - ./configs/nginx/nginx.ports.conf:/etc/nginx/nginx.conf
+      - certs:/etc/letsencrypt
+      - ./configs/nginx/nginx.conf:/etc/nginx/nginx.conf
       - nginx-data:/var/www
     networks:
       - hie
@@ -39,6 +39,21 @@ services:
       options:
         max-size: "10k"
         max-file: "3"
+
+  certbot:
+    profiles: ["support"]
+    image: certbot/dns-route53
+    container_name: certbot
+    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu-d moh.org.bw -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
+    environment:
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    volumes:
+    - certs:/etc/letsencrypt
+    - letsencrypt:/var/lib/letsencrypt
+    networks:
+    - sedish
+
   ###
   # OpenCR
   ###
@@ -105,7 +120,7 @@ services:
     profiles: ["mediator"]
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.2.0
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.2.1
     restart: unless-stopped
     ports:
       - 3000:3000
@@ -259,6 +274,10 @@ volumes:
   cr-data:
     driver: local
   nginx-data:
+    driver: local
+  certs:
+    driver: local
+  letsencrypt:
     driver: local
 networks:
   hie:
