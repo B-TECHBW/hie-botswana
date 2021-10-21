@@ -1,0 +1,245 @@
+version: '2.4'
+
+## Port Assignments:
+##  See .env file
+
+## Container debugging: 
+# 1. append the following lines to desired container 
+# 2. boot up the container using `docker-compose up -d`
+# 3 run `docker exec -it <container-name> bash` to start interactive shell
+# 
+#    tty: true
+#    stdin_open: true
+#    entrypoint: bash
+
+services:
+  ###
+  # nginx reverse proxy
+  # TODO: set up to use non-root user. See https://www.rockyourcode.com/run-docker-nginx-as-non-root-user/
+  # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
+  ###
+  nginx:
+    profiles: ["core"]
+    image: nginx:local
+    container_name: nginx
+    hostname: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 8080:8080
+      - 5000:5000
+      - 5001:5001
+
+    volumes:
+      - ./configs/nginx/nginx.local.conf:/etc/nginx/nginx.conf
+      - nginx-data:/var/www
+    networks:
+      - hie
+    logging:
+      options:
+        max-size: "10k"
+        max-file: "3"
+
+  ###
+  # OpenCR
+  ###
+  opencr:
+    profiles: ["mediator"]
+    container_name: opencr
+    hostname: opencr
+    image: intrahealth/opencr:local
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=docker
+      - HAPI_FHIR_URL=http://opencr-fhir:8080/fhir/metadata
+    networks:
+      - hie
+    volumes:
+      - ./configs/opencr/config_port.json:/src/server/config/config_docker.json
+      - ./configs/opencr/mediator_port.json:/src/server/config/mediator.json
+
+  opencr-fhir:
+    profiles: ["core"]
+    image: hapiproject/hapi:local
+    container_name: opencr-fhir
+    hostname: opencr-fhir
+    restart: unless-stopped
+    networks:
+      - hie
+    healthcheck:
+      test: "curl -sS http://opencr-fhir:8080/fhir/metadata || exit 1"
+      interval: 90s
+      timeout: 30s
+      retries: 3
+    volumes:
+      - cr-data:/data/hapi
+
+  opencr-es:
+    profiles: ["core"]
+    container_name: es
+    image: intrahealth/elasticsearch:local
+    restart: unless-stopped
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es:/usr/share/elasticsearch/data
+    networks:
+      - hie
+
+  ###
+  # SHR
+  ###
+  shr:
+    profiles: ["mediator"]
+    container_name: shr
+    hostname: shr
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.2.1
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=docker
+    networks:
+      - hie
+    volumes:
+      - ./configs/shr/config_docker_template.json:/app/config/config_docker.json
+      - ./configs/shr/mediator.json:/app/config/mediator_docker.json
+
+  shr-fhir:
+    profiles: ["core"]
+    image: hapiproject/hapi:local
+    container_name: shr-fhir
+    hostname: shr-fhir
+    restart: unless-stopped
+    volumes:
+      - shr-data:/data/hapi
+    networks:
+      - hie
+    healthcheck:
+      test: "curl -sS http://shr-fhir:8080/fhir/metadata || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  ###
+  # OpenHIM
+  ###
+  openhim-core:
+    profiles: ["core"]
+    container_name: openhim-core
+    hostname: openhim-core
+    image: jembi/openhim-core:local
+    restart: unless-stopped
+    environment:
+      mongo_url: "mongodb://mongo-db/openhim"
+      mongo_atnaUrl: "mongodb://mongo-db/openhim"
+      NODE_ENV: "development"
+    healthcheck:
+      test: "curl -sSk https://openhim-core:8080/heartbeat || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - hie
+
+  openhim-console:
+    profiles: ["core"]
+    container_name: openhim-console
+    hostname: openhim-console
+    image: jembi/openhim-console:local
+    restart: unless-stopped
+    volumes:
+      - ./configs/openhim-console/port.json:/usr/share/nginx/html/config/default.json
+    healthcheck:
+      test: "curl -sS http://openhim-console || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - hie
+
+  mongo-db:
+    profiles: ["core"]
+    container_name: mongo-db
+    image: mongo:3.4
+    volumes:
+      - "mongo-data:/data/db"
+    restart: unless-stopped
+    networks:
+      - hie
+
+  fhir-converter:
+    profiles: ["mediator"]
+    container_name: fhir-converter
+    hostname: fhir-converter
+    restart: unless-stopped
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:local
+    volumes:
+      - ./configs/fhir-converter/config_port.json:/app/config.json
+      - /app/src/service-templates
+    networks:
+      - hie
+  
+  mllp-adapter:
+    profiles: ["mediator"]
+    image: rivethealth/mllp-http
+    hostname: mllp
+    container_name: mllp
+    command:
+      - "mllp2http"
+      - "--log-level=info"
+      - "--content-type=text/plain"
+      - "http://openhim-core:5001/mllp/"
+    networks:
+    - hie
+  
+  httpbin:
+    profiles: ["test"]
+    image: kennethreitz/httpbin
+    container_name: httpbin
+    hostname: httpbin
+    networks:
+    - hie
+  
+  # Newman Tests
+  newman:
+    profiles: ["test"]
+    image: postman/newman
+    volumes:
+      - ./.postman:/.postman
+    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000 --delay-request 500
+    networks:
+      - hie
+
+  mllp_tests:
+    profiles: ["test"]
+    container_name: mllp_tests
+    build: ./test
+    networks:
+      - hie
+    volumes:
+      - ./test:/test
+volumes:
+  es:
+    driver: local
+  mongo-data:
+    driver: local
+  sqldata:
+    driver: local
+  shr-data:
+    driver: local
+  cr-data:
+    driver: local
+  nginx-data:
+    driver: local
+  certs:
+    driver: local
+  letsencrypt:
+    driver: local
+networks:
+  hie:
