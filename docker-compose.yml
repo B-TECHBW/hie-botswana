@@ -231,11 +231,10 @@ services:
   mllp_tests:
     profiles: ["test"]
     container_name: mllp_tests
-    build: ./test
+    image: ghcr.io/b-techbw/mllp-tester:latest
     networks:
       - hie
-    volumes:
-      - ./test:/test
+
 volumes:
   es:
     driver: local

@@ -156,7 +156,7 @@ services:
 
   mongo-db:
     container_name: mongo-db
-    image: mongo:3.4
+    image: mongo:local
     volumes:
       - "mongo-data:/data/db"
     restart: unless-stopped
@@ -175,19 +175,19 @@ services:
       - hie
   
   mllp-adapter:
-    image: rivethealth/mllp-http
+    image: rivethealth/mllp-http:local
     hostname: mllp
     container_name: mllp
     command:
       - "mllp2http"
       - "--log-level=info"
       - "--content-type=text/plain"
-      - "http://openhim-core:5001/mllp/"
+      - "http://openhim-core:5001/convert/hl7v2/ORU_R01.hbs"
     networks:
     - hie
   
   httpbin:
-    image: kennethreitz/httpbin
+    image: kennethreitz/httpbin:local
     container_name: httpbin
     hostname: httpbin
     networks:
@@ -203,12 +203,12 @@ services:
       - hie
 
   mllp_tests:
+    profiles: ["test"]
     container_name: mllp_tests
-    build: ./test
+    image: ghcr.io/b-techbw/mllp-tester:latest
     networks:
       - hie
-    volumes:
-      - ./test:/test
+
 volumes:
   es:
     driver: local
