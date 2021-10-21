@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Save codebase as tarball
-git archive --output=./dist/package/hie-botswana.tar --format=tar HEAD
-
 # Pull latest images
-docker-compose --profile core --profile mediator --profile test pull
+docker-compose -f docker-compose.local.yml pull
 
 # Save images to .tar files
 docker save --output ./dist/package/docker/nginx.tar nginx:local

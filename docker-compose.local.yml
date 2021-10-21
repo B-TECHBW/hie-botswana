@@ -19,7 +19,6 @@ services:
   # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
   ###
   nginx:
-    profiles: ["core"]
     image: nginx:local
     container_name: nginx
     hostname: nginx
@@ -29,7 +28,6 @@ services:
       - 8080:8080
       - 5000:5000
       - 5001:5001
-
     volumes:
       - ./configs/nginx/nginx.local.conf:/etc/nginx/nginx.conf
       - nginx-data:/var/www
@@ -44,7 +42,6 @@ services:
   # OpenCR
   ###
   opencr:
-    profiles: ["mediator"]
     container_name: opencr
     hostname: opencr
     image: intrahealth/opencr:local
@@ -59,7 +56,6 @@ services:
       - ./configs/opencr/mediator_port.json:/src/server/config/mediator.json
 
   opencr-fhir:
-    profiles: ["core"]
     image: hapiproject/hapi:local
     container_name: opencr-fhir
     hostname: opencr-fhir
@@ -75,7 +71,6 @@ services:
       - cr-data:/data/hapi
 
   opencr-es:
-    profiles: ["core"]
     container_name: es
     image: intrahealth/elasticsearch:local
     restart: unless-stopped
@@ -97,7 +92,6 @@ services:
   # SHR
   ###
   shr:
-    profiles: ["mediator"]
     container_name: shr
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:v0.2.1
@@ -111,7 +105,6 @@ services:
       - ./configs/shr/mediator.json:/app/config/mediator_docker.json
 
   shr-fhir:
-    profiles: ["core"]
     image: hapiproject/hapi:local
     container_name: shr-fhir
     hostname: shr-fhir
@@ -130,7 +123,6 @@ services:
   # OpenHIM
   ###
   openhim-core:
-    profiles: ["core"]
     container_name: openhim-core
     hostname: openhim-core
     image: jembi/openhim-core:local
@@ -148,7 +140,6 @@ services:
       - hie
 
   openhim-console:
-    profiles: ["core"]
     container_name: openhim-console
     hostname: openhim-console
     image: jembi/openhim-console:local
@@ -164,7 +155,6 @@ services:
       - hie
 
   mongo-db:
-    profiles: ["core"]
     container_name: mongo-db
     image: mongo:3.4
     volumes:
@@ -174,7 +164,6 @@ services:
       - hie
 
   fhir-converter:
-    profiles: ["mediator"]
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
@@ -186,7 +175,6 @@ services:
       - hie
   
   mllp-adapter:
-    profiles: ["mediator"]
     image: rivethealth/mllp-http
     hostname: mllp
     container_name: mllp
@@ -199,7 +187,6 @@ services:
     - hie
   
   httpbin:
-    profiles: ["test"]
     image: kennethreitz/httpbin
     container_name: httpbin
     hostname: httpbin
@@ -208,7 +195,6 @@ services:
   
   # Newman Tests
   newman:
-    profiles: ["test"]
     image: postman/newman
     volumes:
       - ./.postman:/.postman
@@ -217,7 +203,6 @@ services:
       - hie
 
   mllp_tests:
-    profiles: ["test"]
     container_name: mllp_tests
     build: ./test
     networks:
@@ -236,10 +221,6 @@ volumes:
   cr-data:
     driver: local
   nginx-data:
-    driver: local
-  certs:
-    driver: local
-  letsencrypt:
     driver: local
 networks:
   hie:
