@@ -19,7 +19,7 @@ services:
   # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
   ###
   nginx:
-    image: nginx:local
+    image: nginx:latest
     container_name: nginx
     hostname: nginx
     restart: unless-stopped
@@ -44,7 +44,7 @@ services:
   opencr:
     container_name: opencr
     hostname: opencr
-    image: intrahealth/opencr:local
+    image: intrahealth/opencr:latest
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -56,7 +56,7 @@ services:
       - ./configs/opencr/mediator_port.json:/src/server/config/mediator.json
 
   opencr-fhir:
-    image: hapiproject/hapi:local
+    image: hapiproject/hapi:latest
     container_name: opencr-fhir
     hostname: opencr-fhir
     restart: unless-stopped
@@ -72,7 +72,7 @@ services:
 
   opencr-es:
     container_name: es
-    image: intrahealth/elasticsearch:local
+    image: intrahealth/elasticsearch:latest
     restart: unless-stopped
     environment:
       - node.name=es01
@@ -94,7 +94,7 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.2.1
+    image: ghcr.io/i-tech-uw/shared-health-record:latest
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -105,7 +105,7 @@ services:
       - ./configs/shr/mediator.json:/app/config/mediator_docker.json
 
   shr-fhir:
-    image: hapiproject/hapi:local
+    image: hapiproject/hapi:latest
     container_name: shr-fhir
     hostname: shr-fhir
     restart: unless-stopped
@@ -125,7 +125,7 @@ services:
   openhim-core:
     container_name: openhim-core
     hostname: openhim-core
-    image: jembi/openhim-core:local
+    image: jembi/openhim-core:latest
     restart: unless-stopped
     environment:
       mongo_url: "mongodb://mongo-db/openhim"
@@ -142,7 +142,7 @@ services:
   openhim-console:
     container_name: openhim-console
     hostname: openhim-console
-    image: jembi/openhim-console:local
+    image: jembi/openhim-console:latest
     restart: unless-stopped
     volumes:
       - ./configs/openhim-console/port.json:/usr/share/nginx/html/config/default.json
@@ -156,7 +156,7 @@ services:
 
   mongo-db:
     container_name: mongo-db
-    image: mongo:local
+    image: mongo:3.4
     volumes:
       - "mongo-data:/data/db"
     restart: unless-stopped
@@ -167,7 +167,7 @@ services:
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
-    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:local
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:latest
     volumes:
       - ./configs/fhir-converter/config_port.json:/app/config.json
       - /app/src/service-templates
@@ -175,7 +175,7 @@ services:
       - hie
   
   mllp-adapter:
-    image: rivethealth/mllp-http:local
+    image: rivethealth/mllp-http:latest
     hostname: mllp
     container_name: mllp
     command:
@@ -187,7 +187,7 @@ services:
     - hie
   
   httpbin:
-    image: kennethreitz/httpbin:local
+    image: kennethreitz/httpbin:latest
     container_name: httpbin
     hostname: httpbin
     networks:
