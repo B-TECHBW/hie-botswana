@@ -20,6 +20,5 @@ docker save --output ./dist/package/docker/opencr.tar intrahealth/opencr:latest
 docker save --output ./dist/package/docker/httpbin.tar kennethreitz/httpbin:latest
 docker save --output ./dist/package/docker/mllp-http.tar rivethealth/mllp-http:latest
 docker save --output ./dist/package/docker/newman.tar postman/newman:latest
-docker save --output ./dist/package/docker/newman.tar postman/newman:latest
 
 docker save --output ./dist/package/docker/mllp-tester.tar ghcr.io/b-techbw/mllp-tester:latest
