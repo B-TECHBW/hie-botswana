@@ -203,7 +203,6 @@ services:
       - hie
 
   mllp_tests:
-    profiles: ["test"]
     container_name: mllp_tests
     image: ghcr.io/b-techbw/mllp-tester:latest
     networks:
