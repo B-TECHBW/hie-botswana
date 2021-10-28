@@ -2,7 +2,7 @@
 "version": "1.10.0",
 "minimumCoreVersion": "3.4.0",
 "protocol": "https",
-"host": "openhim-core",
+"host": "localhost",
 "port": 8080,
 "title": "Local OpenHIM Console",
 "footerTitle": "OpenHIM Administration Console",

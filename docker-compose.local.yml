@@ -25,12 +25,17 @@ services:
     restart: unless-stopped
     ports:
       - 80:80
+      - 443:443
       - 8080:8080
       - 5000:5000
       - 5001:5001
+      - 2019:2019
+      - 10040:10040
+      - 10060:10060
     volumes:
       - ./configs/nginx/nginx.local.conf:/etc/nginx/nginx.conf
       - nginx-data:/var/www
+      - ./configs/nginx/certs:/etc/certs
     networks:
       - hie
     logging:
@@ -174,18 +179,30 @@ services:
     networks:
       - hie
   
-  mllp-adapter:
+  mllp-oru:
     image: rivethealth/mllp-http:latest
-    hostname: mllp
-    container_name: mllp
+    hostname: mllp-oru
+    container_name: mllp-oru
+    command:
+      - "mllp2http"
+      - "--log-level=info"
+      - "--content-type=text/plain"      
+      - "http://openhim-core:5001/72f/convert/hl7v2/ORU_R01.hbs"
+    networks:
+    - hie
+  
+  mllp-adt:
+    image: rivethealth/mllp-http:latest
+    hostname: mllp-adt
+    container_name: mllp-adt
     command:
       - "mllp2http"
       - "--log-level=info"
       - "--content-type=text/plain"
-      - "http://openhim-core:5001/convert/hl7v2/ORU_R01.hbs"
+      - "http://openhim-core:5001/72f/convert/hl7v2/ADT_A01.hbs"
     networks:
     - hie
-  
+
   httpbin:
     image: kennethreitz/httpbin:latest
     container_name: httpbin
@@ -204,9 +221,14 @@ services:
 
   mllp_tests:
     container_name: mllp_tests
-    image: ghcr.io/b-techbw/mllp-tester:latest
+    image: ghcr.io/b-techbw/mllp-tester:main
     networks:
       - hie
+    volumes:
+      - ./test/mllp:/test
+    tty: true
+    stdin_open: true
+    entrypoint: sh
 
 volumes:
   es:
