@@ -107,8 +107,8 @@ services:
     networks:
       - hie
     volumes:
-      - ./configs/shr/config_docker_template.json:/app/config/config_docker.json
-      - ./configs/shr/mediator.json:/app/config/mediator_docker.json
+      - ./configs/shr/config_ports.json:/app/config/config_docker.json
+      - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
 
   shr-fhir:
     image: hapiproject/hapi:latest
@@ -179,30 +179,6 @@ services:
       - /app/src/service-templates
     networks:
       - hie
-  
-  mllp-oru:
-    image: rivethealth/mllp-http:latest
-    hostname: mllp-oru
-    container_name: mllp-oru
-    command:
-      - "mllp2http"
-      - "--log-level=info"
-      - "--content-type=text/plain"      
-      - "http://openhim-core:5001/72f/convert/hl7v2/ORU_R01.hbs"
-    networks:
-    - hie
-  
-  mllp-adt:
-    image: rivethealth/mllp-http:latest
-    hostname: mllp-adt
-    container_name: mllp-adt
-    command:
-      - "mllp2http"
-      - "--log-level=info"
-      - "--content-type=text/plain"
-      - "http://openhim-core:5001/72f/convert/hl7v2/ADT_A01.hbs"
-    networks:
-    - hie
 
   httpbin:
     image: kennethreitz/httpbin:latest

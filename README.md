@@ -65,3 +65,77 @@ The certificates are loaded into the `certs` volume, which can be mounted in any
 - Hapi JPA Servers (https://github.com/hapifhir/hapi-fhir-jpaserver-starter)
 
 
+
+## HIE Testing Guide
+
+### 1. Setup
+Determine whether you're running a domain-based or port-based setup. Based on this, either use the `docker-compose.yml` file for domain-based, or the `docker-compose.local.yml` file for port-based. 
+
+This decision determines how services will be reached, and what environment needs to be used for testing. In each case, the traffic is routed through the `nginx` container, which distributes the traffic correctly based on domains or ports. See the `nginx` configuration in the corresponding `docker-compose.yml` file, and the configurations in `./configs/nginx`. 
+
+These instructions will assume a port-based approach when giving examples, so you can swap in the corresponding domain-based urls from the `nginx.conf` files. 
+### 2. Verify access to OpenHIM
+
+Make sure console is up and running, and pointed to the correct, external (non-docker) url for the `openhim-core` api (port `8080`):
+```sh
+docker logs -n 100 openhim-console
+```
+
+Make sure `openhim-core` is running correctly:
+```sh
+docker logs -n 100 openhim-core
+```
+
+Open openhim console url in browser window:
+`https://localhost`
+
+Log in using default password:
+`root@openmrs.org/openhim-password`
+
+Set new admin password
+
+Browse the OpenHIM Dashboard
+### 3. Activate and Verify the Mediators
+
+Go to `Mediators` tab in OpenHIM console.
+
+Verify that the following three mediators are registered and have active (green) heartbeats:
+- OpenCR
+- SHR
+- FHIR-HL7 Converter
+
+Add the channels associated with each mediator with the green `+` button.
+
+Go to the `Clients and Roles` tab and create the following roles and channel assignments:
+1. shr-client (all SHR mediator channels)
+2. opencr-client (all OpenCR mediator channels)
+3. converter-client (all Fhir Converter mediator channels)
+4. mfl-client (placeholder)
+5. omang-client (placeholder)
+6. bd-client (placeholder)
+
+In the clients section, create the following clients and assign roles:
+1. pims-test(shr-client, opencr-client, mfl-client)
+2. ipms-test(shr-client)
+3. shr(opencr-client, converter-client, mfl-client, omang-client, bd-client)
+4. opencr(converter-client, omang-client, bd-client)
+
+For each client, add Basic Auth authentication in the Authentication tab. The client name will be the username for BasicAuth, and will need to be set correctly in configurations for the communication workflows to work. For production, certificate-based authentication will be used. 
+
+To enable testing, the following temporary client should also be created and given access to all of the listed roles: `postman/postman`. If a password other than this default is required, the corresponding settings need to be updated in each `.json` file in `.postman/collections` for the tests to run correctly. 
+
+
+
+### 4. Run Postman Tests
+
+
+
+### MLLP Testing
+Dependencies: openhim-core, openhim-console, shr, fhir-converter
+
+1. Check that the
+
+1. ADT
+2. ORU
+
+For this test, the test will respond with success if it passes, and it will log a couple transactions in the OpenHIM console. 
