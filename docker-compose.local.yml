@@ -15,15 +15,39 @@ version: '2.4'
 services:
   ###
   # nginx reverse proxy
-  # - Not currently used in CI
+  # TODO: set up to use non-root user. See https://www.rockyourcode.com/run-docker-nginx-as-non-root-user/
+  # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
   ###
-  
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    hostname: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+      - 8090:8090
+      - 5000:5000
+      - 5001:5001
+      # - 2019:2019
+      - 10040:10040
+      - 10060:10060
+    volumes:
+      - ./configs/nginx/nginx.local.conf:/etc/nginx/nginx.conf
+      - nginx-data:/var/www
+      - ./configs/nginx/certs:/etc/certs
+    networks:
+      - hie
+    logging:
+      options:
+        max-size: "10k"
+        max-file: "3"
 
   ###
   # OpenCR
   ###
   opencr:
-    profiles: ["mediators"]
     container_name: opencr
     hostname: opencr
     image: intrahealth/opencr:latest
@@ -34,10 +58,10 @@ services:
     networks:
       - hie
     volumes:
-      - ./configs/opencr/config_ci.json:/src/server/config/config_docker.json
-      - ./configs/opencr/mediator_ci.json:/src/server/config/mediator.json
+      - ./configs/opencr/config_port.json:/src/server/config/config_docker.json
+      - ./configs/opencr/mediator_port.json:/src/server/config/mediator.json
+
   opencr-fhir:
-    profiles: ["support"]
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
     hostname: opencr-fhir
@@ -51,8 +75,8 @@ services:
       retries: 3
     volumes:
       - cr-data:/data/hapi
+
   opencr-es:
-    profiles: ["support"]
     container_name: es
     image: intrahealth/elasticsearch:latest
     restart: unless-stopped
@@ -74,7 +98,6 @@ services:
   # SHR
   ###
   shr:
-    profiles: ["mediators"]
     container_name: shr
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:v0.3.3
@@ -84,11 +107,10 @@ services:
     networks:
       - hie
     volumes:
-      - ./configs/shr/config_ci.json:/app/config/config_docker.json
-      - ./configs/shr/mediator_ci.json:/app/config/mediator_docker.json       
- 
+      - ./configs/shr/config_ports.json:/app/config/config_docker.json
+      - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
+
   shr-fhir:
-    profiles: ["support"]
     image: hapiproject/hapi:latest
     container_name: shr-fhir
     hostname: shr-fhir
@@ -107,7 +129,6 @@ services:
   # OpenHIM
   ###
   openhim-core:
-    profiles: ["support"]
     container_name: openhim-core
     hostname: openhim-core
     image: jembi/openhim-core:latest
@@ -123,16 +144,23 @@ services:
       retries: 3
     networks:
       - hie
-    ports:
-      - 8080:8080
-      - "5000:5000"
-      - "5001:5001"
-      # - "5050:5050"
-      # - "5051:5051"
-      # - "5052:5052"
-      # - "7788:7788"
+
+  openhim-console:
+    container_name: openhim-console
+    hostname: openhim-console
+    image: jembi/openhim-console:latest
+    restart: unless-stopped
+    volumes:
+      - ./configs/openhim-console/port.json:/usr/share/nginx/html/config/default.json
+    healthcheck:
+      test: "curl -sS http://openhim-console || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+      - hie
+
   mongo-db:
-    profiles: ["support"]
     container_name: mongo-db
     image: mongo:3.4
     volumes:
@@ -142,79 +170,43 @@ services:
       - hie
 
   fhir-converter:
-    profiles: ["mediators"]
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
-    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:v3.0.1
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:latest
     volumes:
-      - ./configs/fhir-converter/config_ci.json:/app/config.json
+      - ./configs/fhir-converter/config_port.json:/app/config.json
+      - /app/src/service-templates
     networks:
       - hie
 
-  mllp-adapter:
-    profiles: ["mediators"]
-    image: rivethealth/mllp-http
-    hostname: mllp
-    container_name: mllp
-    ports:
-    - 2575:2575
-    command:
-      - "mllp2http"
-      - "--log-level=info"
-      - "http://httpbin/post"
+  httpbin:
+    image: kennethreitz/httpbin:latest
+    container_name: httpbin
+    hostname: httpbin
     networks:
     - hie
-
+  
   # Newman Tests
   newman:
-    profiles: ["test"]
     image: postman/newman
     volumes:
       - ./.postman:/.postman
     entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000 --delay-request 500
     networks:
       - hie
-  
+
   mllp_tests:
-    profiles: ["test"]
     container_name: mllp_tests
-    build: ./test
+    image: ghcr.io/b-techbw/mllp-tester:main
     networks:
       - hie
     volumes:
-      - ./test:/test
-  
-  httpbin:
-    profiles: ["test"]
-    image: kennethreitz/httpbin
-    container_name: httpbin
-    hostname: httpbin
-    networks:
-    - hie
-  # OpenHIM Config
-  openhim-config:
-    profiles: ["support"]
-    container_name: openhim-config
-    image: ghcr.io/i-tech-uw/openhim-config:latest
-    volumes:
-      - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
-    networks:
-      - hie
-  # UI
-  openhim-console:
-    profiles: ["ui"]
-    image: jembi/openhim-console:latest
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    healthcheck:
-      test: "curl -sS http://localhost || exit 1"
-      interval: 30s
-      timeout: 30s
-      retries: 3      
-    networks:
-      - hie
+      - ./test/mllp:/test
+    tty: true
+    stdin_open: true
+    entrypoint: sh
+
 volumes:
   es:
     driver: local

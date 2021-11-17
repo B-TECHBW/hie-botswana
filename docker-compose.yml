@@ -112,7 +112,7 @@ services:
     profiles: ["mediator"]
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.2.1
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.3.3
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -231,11 +231,10 @@ services:
   mllp_tests:
     profiles: ["test"]
     container_name: mllp_tests
-    build: ./test
+    image: ghcr.io/b-techbw/mllp-tester:latest
     networks:
       - hie
-    volumes:
-      - ./test:/test
+
 volumes:
   es:
     driver: local

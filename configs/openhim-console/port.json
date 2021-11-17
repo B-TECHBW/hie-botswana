@@ -1,7 +1,7 @@
 {
 "version": "1.10.0",
 "minimumCoreVersion": "3.4.0",
-"protocol": "http",
+"protocol": "https",
 "host": "localhost",
 "port": 8080,
 "title": "Local OpenHIM Console",
