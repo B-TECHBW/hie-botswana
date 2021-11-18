@@ -1,5 +1,6 @@
 #!/bin/bash
-hostname="mllp-adt"
+hostname="localhost"
+port=2575
 
 for hl7File in messages/*
 do
@@ -16,5 +17,5 @@ do
 
   echo $hostname
 
-  echo -ne $msg | socat - TCP:$hostname:2575
+  echo -ne $msg | socat - TCP:$hostname:$port
 done

@@ -124,18 +124,19 @@ For each client, add Basic Auth authentication in the Authentication tab. The cl
 
 To enable testing, the following temporary client should also be created and given access to all of the listed roles: `postman/postman`. If a password other than this default is required, the corresponding settings need to be updated in each `.json` file in `.postman/collections` for the tests to run correctly. 
 
-
-
 ### 4. Run Postman Tests
 
+Verify that the `.postman/postman_env.moh.json` environment file has the correct urls for the setup to be tested. 
 
-
-### MLLP Testing
-Dependencies: openhim-core, openhim-console, shr, fhir-converter
-
-1. Check that the
-
-1. ADT
-2. ORU
+Run the tests:
+```sh
+./.postman/run-tests-offline.sh
+```
+### 5. Run MLLP Tests
 
 For this test, the test will respond with success if it passes, and it will log a couple transactions in the OpenHIM console. 
+
+Run the tests:
+```sh
+sudo docker-compose -f docker-compose.local.yml up mllp_tests
+```
