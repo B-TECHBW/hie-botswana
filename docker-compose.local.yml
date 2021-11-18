@@ -30,9 +30,7 @@ services:
       - 8090:8090
       - 5000:5000
       - 5001:5001
-      # - 2019:2019
-      - 10040:10040
-      - 10060:10060
+      - 2575:2575
     volumes:
       - ./configs/nginx/nginx.local.conf:/etc/nginx/nginx.conf
       - nginx-data:/var/www
