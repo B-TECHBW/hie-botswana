@@ -1,11 +1,7 @@
 {
-  "auth": {
-    "secret": "3084e343-71bc-4247-86e4-ea210af89c28",
-    "tokenDuration": 5400
-  },
   "app": {
     "port": 3000,
-    "installed": false
+    "mllpPort": 3001
   },
   "mediator": {
     "api": {
@@ -13,20 +9,15 @@
       "password": "openhim",
       "apiURL": "https://openhim-core:8080",
       "trustSelfSigned": true,
-      "urn": ""
+      "urn": "urn:mediator:shared-health-record"
     }
   },
   "fhirServer": {
-    "username": "shr",
-    "password": "shr123",
     "mpiURL": "http://openhim-core:5001/CR/fhir",
     "baseURL": "http://shr-fhir:8080/fhir"
   },
-
-  "structureDefinition": {
-    "uri": "http://openclientregistry.org/fhir",
-    "reportRelationship": "patientreport"
-  },
-  "clients": [
-  ]
+  "fhirConverterUrl": "https://openhim-core:5000/72f",
+  "taskRunner": {
+    "brokers" : ["kafka:9092"]
+  }
 }
