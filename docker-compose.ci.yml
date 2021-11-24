@@ -199,14 +199,7 @@ services:
       - hie
     volumes:
       - ./test:/test
-  
-  httpbin:
-    profiles: ["test"]
-    image: kennethreitz/httpbin
-    container_name: httpbin
-    hostname: httpbin
-    networks:
-    - hie
+
   # OpenHIM Config
   openhim-config:
     profiles: ["support"]
