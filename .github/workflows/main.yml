@@ -46,6 +46,9 @@ jobs:
       - name: Display container status
         run: COMPOSE_PROFILES=mediators,support,test,config docker-compose -f docker-compose.ci.yml ps
 
+      - name: Display logs 
+        run: docker-compose -f docker-compose.ci.yml --profile mediators logs
+
       - name: Run General Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-77f89792-c73b-4c75-a450-5cb6f79230d4)
         env: 
           POSTMAN_COLLECTION: https://www.getpostman.com/collections/c58de2e03b071c45dcaa

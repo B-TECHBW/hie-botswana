@@ -98,7 +98,7 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.3.3
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.0
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -178,13 +178,32 @@ services:
     networks:
       - hie
 
-  httpbin:
-    image: kennethreitz/httpbin:latest
-    container_name: httpbin
-    hostname: httpbin
+  # Kafka
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    hostname: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
     networks:
     - hie
-  
+  kafka:
+    image: 'bitnami/kafka:latest'
+    hostname: kafka
+    container_name: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    volumes:
+      - kafka-data:/bitnami/kafka
+    depends_on:
+      - zookeeper
+    networks:
+    - hie
+
   # Newman Tests
   newman:
     image: postman/newman
@@ -218,5 +237,7 @@ volumes:
     driver: local
   nginx-data:
     driver: local
+  kafka-data:
+    driver: local    
 networks:
   hie:
