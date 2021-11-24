@@ -257,5 +257,7 @@ volumes:
     driver: local
   letsencrypt:
     driver: local
+  kafka-data:
+    driver: local
 networks:
   hie:

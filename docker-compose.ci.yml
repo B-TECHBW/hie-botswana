@@ -243,5 +243,7 @@ volumes:
     driver: local
   nginx-data:
     driver: local
+  kafka-data:
+    driver: local
 networks:
   hie:

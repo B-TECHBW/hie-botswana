@@ -203,7 +203,7 @@ services:
       - zookeeper
     networks:
     - hie
-    
+
   # Newman Tests
   newman:
     image: postman/newman
@@ -237,5 +237,7 @@ volumes:
     driver: local
   nginx-data:
     driver: local
+  kafka-data:
+    driver: local    
 networks:
   hie:
