@@ -187,7 +187,7 @@ services:
     image: postman/newman
     volumes:
       - ./.postman:/.postman
-    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000 --delay-request 500
+    entrypoint: newman run $POSTMAN_COLLECTION -e /.postman/postman_env.ci.json --insecure --timeout-request 20000 --delay-request 3000
     networks:
       - hie
   
