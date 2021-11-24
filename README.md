@@ -30,17 +30,24 @@ Open the OpenHIM console in the browser and use default login and password:
 Change the password when prompted to one that your mediators will use. 
 
 ### 6. Start up mediators:
+Ensure the chosen password is set correctly in the configuration files for these mediators in the `mediator`:`api`:`password` setting:
+- https://github.com/B-TECHBW/hie-botswana/blob/main/configs/fhir-converter/config_port.json
+- https://github.com/B-TECHBW/hie-botswana/blob/main/configs/shr/config_ports.json
+- https://github.com/B-TECHBW/hie-botswana/blob/main/configs/opencr/config_port.json
 
+Then, start up the mediators:
 ```sh
 docker-compose -f docker-compose.local.yml up -d shr opencr fhir-converter
 ```
+
+You can check the logs of the mediators by running:
+```sh
+docker-compose -f docker-compose.local.yml logs shr opencr fhir-converter
+```
+
 ## HIE Testing Guide
-
-Determine whether you're running a domain-based or port-based setup. Based on this, either use the `docker-compose.yml` file for domain-based, or the `docker-compose.local.yml` file for port-based. 
-
-This decision determines how services will be reached, and what environment needs to be used for testing. In each case, the traffic is routed through the `nginx` container, which distributes the traffic correctly based on domains or ports. See the `nginx` configuration in the corresponding `docker-compose.yml` file, and the configurations in `./configs/nginx`. 
-
 These instructions will assume a port-based approach when giving examples, so you can swap in the corresponding domain-based urls from the `nginx.conf` files. 
+
 ### Step 1: Verify access to OpenHIM
 
 Make sure console is up and running, and pointed to the correct, external (non-docker) url for the `openhim-core` api (port `8080`):
@@ -62,6 +69,7 @@ Log in using default password and set a new admin password if not done already, 
 Make sure whatever password you choose is updated in the `opencr`, `shr`, and `fhir-converter` config files.
 
 You should now be logged into the OpenHIM Dashboard. 
+
 ### Step 2: Activate and Verify the Mediators
 
 Go to `Mediators` tab in OpenHIM console.
