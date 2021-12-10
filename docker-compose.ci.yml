@@ -78,7 +78,7 @@ services:
     container_name: shr
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:v0.4.3
-    restart: unless-stoppeds
+    restart: unless-stopped
     environment:
       - NODE_ENV=docker
     networks:
