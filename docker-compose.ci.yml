@@ -77,8 +77,8 @@ services:
     profiles: ["mediators"]
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.2
-    restart: unless-stopped
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.3
+    restart: unless-stoppeds
     environment:
       - NODE_ENV=docker
     networks:

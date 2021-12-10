@@ -98,7 +98,7 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.1
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.3
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -228,7 +228,7 @@ services:
       - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
     networks:
       - hie
-      
+
 volumes:
   es:
     driver: local
