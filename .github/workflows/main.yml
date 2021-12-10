@@ -75,7 +75,7 @@ jobs:
         run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
       
       - name: Run MLLP Tests
-        run: docker-compose -f ci.docker-compose.yml up --exit-code-from mllp_tests mllp_tests
+        run: docker-compose -f docker-compose.ci.yml up --exit-code-from mllp_tests mllp_tests
 
       - name: Stop containers
         if: always()
