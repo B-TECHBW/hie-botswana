@@ -194,11 +194,11 @@ services:
   mllp_tests:
     profiles: ["test"]
     container_name: mllp_tests
-    build: ./test
+    image: ghcr.io/b-techbw/mllp-tester:main
     networks:
       - hie
     volumes:
-      - ./test:/test
+      - ./test/mllp:/test
 
   # OpenHIM Config
   openhim-config:
