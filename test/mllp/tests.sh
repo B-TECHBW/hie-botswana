@@ -1,6 +1,6 @@
 #!/bin/bash
-hostname="localhost"
-port=2575
+hostname="shr"
+port=3001
 
 for hl7File in messages/*
 do

@@ -21,7 +21,7 @@ git clone https://github.com/B-TECHBW/hie-botswana.git
 ### 4. Start up core containers:
 ```sh
 cd hie-botswana
-docker-compose -f docker-compose.local.yml up -d openhim-core openhim-console mongo-db opencr-fhir shr-fhir opencr-es kafka zookeeper
+docker-compose -f docker-compose.local.yml up -d openhim-core openhim-console mongo-db opencr-fhir shr-fhir opencr-es kafka zookeeper nginx
 ```
 ### 5. OpenHIM Password Setup:
 Open the OpenHIM console in the browser and use default login and password:

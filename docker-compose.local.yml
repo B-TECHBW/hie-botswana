@@ -1,13 +1,13 @@
-version: '2.4'
+version: "2.4"
 
 ## Port Assignments:
 ##  See .env file
 
-## Container debugging: 
-# 1. append the following lines to desired container 
+## Container debugging:
+# 1. append the following lines to desired container
 # 2. boot up the container using `docker-compose up -d`
 # 3 run `docker exec -it <container-name> bash` to start interactive shell
-# 
+#
 #    tty: true
 #    stdin_open: true
 #    entrypoint: bash
@@ -98,7 +98,7 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.0
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.3
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -180,14 +180,14 @@ services:
 
   # Kafka
   zookeeper:
-    image: 'bitnami/zookeeper:latest'
+    image: "bitnami/zookeeper:latest"
     hostname: zookeeper
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     networks:
-    - hie
+      - hie
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: "bitnami/kafka:latest"
     hostname: kafka
     container_name: kafka
     environment:
@@ -202,7 +202,7 @@ services:
     depends_on:
       - zookeeper
     networks:
-    - hie
+      - hie
 
   # Newman Tests
   newman:
@@ -220,9 +220,14 @@ services:
       - hie
     volumes:
       - ./test/mllp:/test
-    tty: true
-    stdin_open: true
-    entrypoint: sh
+  
+  openhim-config:
+    container_name: openhim-config
+    image: ghcr.io/i-tech-uw/openhim-config:v0.0.0
+    volumes:
+      - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
+    networks:
+      - hie
 
 volumes:
   es:
@@ -238,6 +243,6 @@ volumes:
   nginx-data:
     driver: local
   kafka-data:
-    driver: local    
+    driver: local
 networks:
   hie:

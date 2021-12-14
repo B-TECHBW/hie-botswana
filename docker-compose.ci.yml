@@ -77,7 +77,7 @@ services:
     profiles: ["mediators"]
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.0
+    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.3
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -194,17 +194,17 @@ services:
   mllp_tests:
     profiles: ["test"]
     container_name: mllp_tests
-    build: ./test
+    image: ghcr.io/b-techbw/mllp-tester:main
     networks:
       - hie
     volumes:
-      - ./test:/test
+      - ./test/mllp:/test
 
   # OpenHIM Config
   openhim-config:
     profiles: ["support"]
     container_name: openhim-config
-    image: ghcr.io/i-tech-uw/openhim-config:latest
+    image: ghcr.io/i-tech-uw/openhim-config:v0.0.0
     volumes:
       - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
     networks:
