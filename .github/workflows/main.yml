@@ -59,9 +59,9 @@ jobs:
           POSTMAN_COLLECTION: https://www.getpostman.com/collections/a410a87102b64366c072
         run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
 
-      - name: Run Laboratory Tests (https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-fc0b7d4c-90b3-4774-9156-3e6cb4c97f5f)
+      - name: Run Laboratory Tests (https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-db80feab-8a77-42c8-aa7e-fd4beb0ae6a8)
         env: 
-          POSTMAN_COLLECTION: https://www.getpostman.com/collections/ff5183adca5b5e720338
+          POSTMAN_COLLECTION: https://www.getpostman.com/collections/ab7cb9127e90777d39f4
         run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
       
       - name: Run MLLP Tests
