@@ -77,7 +77,7 @@ services:
     profiles: ["mediators"]
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.3
+    image: ghcr.io/i-tech-uw/shared-health-record:${SHR_VERSION}
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -146,7 +146,7 @@ services:
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
-    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:v3.0.1
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION}
     volumes:
       - ./configs/fhir-converter/config_ci.json:/app/config.json
     networks:
@@ -180,6 +180,7 @@ services:
       - zookeeper
     networks:
     - hie
+    entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
 
   # Newman Tests
   newman:

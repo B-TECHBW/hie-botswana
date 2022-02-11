@@ -1,13 +1,13 @@
-version: '2.4'
+version: "2.4"
 
 ## Port Assignments:
 ##  See .env file
 
-## Container debugging: 
-# 1. append the following lines to desired container 
+## Container debugging:
+# 1. append the following lines to desired container
 # 2. boot up the container using `docker-compose up -d`
 # 3 run `docker exec -it <container-name> bash` to start interactive shell
-# 
+#
 #    tty: true
 #    stdin_open: true
 #    entrypoint: bash
@@ -16,20 +16,25 @@ services:
   ###
   # nginx reverse proxy
   # TODO: set up to use non-root user. See https://www.rockyourcode.com/run-docker-nginx-as-non-root-user/
+  # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
   ###
   nginx:
-    profiles: ["core"]
     image: nginx:latest
     container_name: nginx
     hostname: nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
+      - 8080:8080
+      - 8090:8090
+      - 5000:5000
+      - 5001:5001
+      - 2575:2575
     volumes:
-      - certs:/etc/letsencrypt
-      - ./configs/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./configs/nginx/nginx.local.conf:/etc/nginx/nginx.conf
       - nginx-data:/var/www
+      - ./configs/nginx/certs:/etc/certs
     networks:
       - hie
     logging:
@@ -37,25 +42,10 @@ services:
         max-size: "10k"
         max-file: "3"
 
-  certbot:
-    profiles: ["support"]
-    image: certbot/dns-route53
-    container_name: certbot
-    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    volumes:
-    - certs:/etc/letsencrypt
-    - letsencrypt:/var/lib/letsencrypt
-    networks:
-    - hie
-
   ###
   # OpenCR
   ###
   opencr:
-    profiles: ["mediator"]
     container_name: opencr
     hostname: opencr
     image: intrahealth/opencr:latest
@@ -70,7 +60,6 @@ services:
       - ./configs/opencr/mediator_port.json:/src/server/config/mediator.json
 
   opencr-fhir:
-    profiles: ["core"]
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
     hostname: opencr-fhir
@@ -86,7 +75,6 @@ services:
       - cr-data:/data/hapi
 
   opencr-es:
-    profiles: ["core"]
     container_name: es
     image: intrahealth/elasticsearch:latest
     restart: unless-stopped
@@ -108,21 +96,19 @@ services:
   # SHR
   ###
   shr:
-    profiles: ["mediator"]
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:v0.4.3
+    image: ghcr.io/i-tech-uw/shared-health-record:${SHR_VERSION}
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
     networks:
       - hie
     volumes:
-      - ./configs/shr/config_docker_template.json:/app/config/config_docker.json
-      - ./configs/shr/mediator.json:/app/config/mediator_docker.json
+      - ./configs/shr/config_ports.json:/app/config/config_docker.json
+      - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
 
   shr-fhir:
-    profiles: ["core"]
     image: hapiproject/hapi:latest
     container_name: shr-fhir
     hostname: shr-fhir
@@ -141,7 +127,6 @@ services:
   # OpenHIM
   ###
   openhim-core:
-    profiles: ["core"]
     container_name: openhim-core
     hostname: openhim-core
     image: jembi/openhim-core:latest
@@ -159,7 +144,6 @@ services:
       - hie
 
   openhim-console:
-    profiles: ["core"]
     container_name: openhim-console
     hostname: openhim-console
     image: jembi/openhim-console:latest
@@ -175,7 +159,6 @@ services:
       - hie
 
   mongo-db:
-    profiles: ["core"]
     container_name: mongo-db
     image: mongo:3.4
     volumes:
@@ -185,27 +168,26 @@ services:
       - hie
 
   fhir-converter:
-    profiles: ["mediator"]
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
-    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:latest
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION}
     volumes:
       - ./configs/fhir-converter/config_port.json:/app/config.json
       - /app/src/service-templates
     networks:
       - hie
-  
+
   # Kafka
   zookeeper:
-    image: 'bitnami/zookeeper:latest'
+    image: "bitnami/zookeeper:latest"
     hostname: zookeeper
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     networks:
-    - hie
+      - hie
   kafka:
-    image: 'bitnami/kafka:latest'
+    image: "bitnami/kafka:latest"
     hostname: kafka
     container_name: kafka
     environment:
@@ -220,11 +202,11 @@ services:
     depends_on:
       - zookeeper
     networks:
-    - hie
-  
+      - hie
+    entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
+
   # Newman Tests
   newman:
-    profiles: ["test"]
     image: postman/newman
     volumes:
       - ./.postman:/.postman
@@ -233,9 +215,18 @@ services:
       - hie
 
   mllp_tests:
-    profiles: ["test"]
     container_name: mllp_tests
-    image: ghcr.io/b-techbw/mllp-tester:latest
+    image: ghcr.io/b-techbw/mllp-tester:main
+    networks:
+      - hie
+    volumes:
+      - ./test/mllp:/test
+  
+  openhim-config:
+    container_name: openhim-config
+    image: ghcr.io/i-tech-uw/openhim-config:v0.0.0
+    volumes:
+      - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
     networks:
       - hie
 
@@ -251,10 +242,6 @@ volumes:
   cr-data:
     driver: local
   nginx-data:
-    driver: local
-  certs:
-    driver: local
-  letsencrypt:
     driver: local
   kafka-data:
     driver: local
