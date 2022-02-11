@@ -180,6 +180,7 @@ services:
       - zookeeper
     networks:
     - hie
+    entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
 
   # Newman Tests
   newman:
