@@ -99,7 +99,7 @@
         "test"
       ],
       "whitelist": [],
-      "authType": "private",
+      "authType": "public",
       "matchContentTypes": [],
       "properties": [],
       "txViewAcl": [],
@@ -134,10 +134,6 @@
       "priority": 1,
       "alerts": [],
       "rewriteUrlsConfig": [],
-      "updatedBy": {
-        "id": "6112c011b572800013c71ec0",
-        "name": "Super User"
-      },
       "matchContentJson": null,
       "matchContentRegex": null,
       "matchContentValue": null,
@@ -157,7 +153,7 @@
         "test"
       ],
       "whitelist": [],
-      "authType": "private",
+      "authType": "public",
       "matchContentTypes": [],
       "properties": [],
       "txViewAcl": [],
@@ -191,18 +187,7 @@
       ],
       "alerts": [],
       "rewriteUrlsConfig": [],
-      "priority": 2,
-      "updatedBy": {
-        "id": "6112c011b572800013c71ec0",
-        "name": "Super User"
-      },
-      "matchContentJson": null,
-      "matchContentRegex": null,
-      "matchContentValue": null,
-      "matchContentXpath": null,
-      "pollingSchedule": null,
-      "tcpHost": null,
-      "tcpPort": null
+      "priority": 2
     },
     {
       "methods": [
@@ -227,10 +212,6 @@
       "addAutoRewriteRules": true,
       "autoRetryEnabled": false,
       "autoRetryPeriodMinutes": 60,
-      "updatedBy": {
-        "id": "6112c011b572800013c71ec0",
-        "name": "Super User"
-      },
       "requestBody": true,
       "responseBody": true,
       "description": "Get or Update the Lab Workflow Bundles in the SHR",
