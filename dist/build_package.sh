@@ -13,8 +13,8 @@ docker save --output ./dist/package/docker/es.tar intrahealth/elasticsearch:late
 docker save --output ./dist/package/docker/mongo.tar mongo:3.4
 docker save --output ./dist/package/docker/hapi.tar hapiproject/hapi:latest
 
-docker save --output ./dist/package/docker/shared-health-record.tar ghcr.io/i-tech-uw/shared-health-record:v0.4.3
-docker save --output ./dist/package/docker/openhim-mediator-fhir-converter.tar ghcr.io/b-techbw/openhim-mediator-fhir-converter:latest
+docker save --output ./dist/package/docker/shared-health-record.tar ghcr.io/i-tech-uw/shared-health-record:v0.4.4
+docker save --output ./dist/package/docker/openhim-mediator-fhir-converter.tar ghcr.io/b-techbw/openhim-mediator-fhir-converter:v3.1.4
 docker save --output ./dist/package/docker/opencr.tar intrahealth/opencr:latest
 
 docker save --output ./dist/package/docker/newman.tar postman/newman:latest
