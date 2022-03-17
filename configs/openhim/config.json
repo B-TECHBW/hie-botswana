@@ -1,0 +1,14 @@
+{
+  "authentication": {
+    "enableMutualTLSAuthentication": true,
+    "enableBasicAuthentication": true,
+    "enableCustomTokenAuthentication": true,
+    "enableJWTAuthentication": true,
+    "jwt": {
+      "secretOrPublicKey": "",
+      "algorithms": "",
+      "audience": "",
+      "issuer": ""
+    }
+  }
+}
