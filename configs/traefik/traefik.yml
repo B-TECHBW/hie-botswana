@@ -1,0 +1,22 @@
+log:
+  level: DEBUG
+serversTransport:
+  insecureSkipVerify: true
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entrypoint:
+          to: web-secure
+          scheme: https
+  web-secure:
+    address: :443
+api:
+  insecure: true
+providers:
+  file:
+    watch: true
+    directory: /etc/traefik/dynamic_conf
+  docker:
+    exposedByDefault: false

@@ -47,3 +47,5 @@ server/log
 /db
 
 *.tar
+
+data/*

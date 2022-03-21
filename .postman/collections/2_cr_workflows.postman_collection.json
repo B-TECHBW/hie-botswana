@@ -1,0 +1,586 @@
+{
+	"info": {
+		"_postman_id": "16a5a3c2-719f-40a6-ad06-a9530d3f2006",
+		"name": "2. Client Registry Workflows",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01 PIMS --> CR",
+			"item": [
+				{
+					"name": "Add PIMS Patient To CR",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"",
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([201,200]);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var moment = require('moment');",
+									"",
+									"pm.collectionVariables.set(\"PIMS_PATIENT_ID\", \"pims-patient-id-\"+Math.floor(Math.random() * 10000));",
+									"pm.collectionVariables.set(\"PIMS_FACILITY_CODE\", \"pims-facility-code-\"+Math.floor(Math.random() * 1000));",
+									"pm.collectionVariables.set(\"IPMS_FACILITY_CODE\", \"ipms-facility-code-\"+Math.floor(Math.random() * 1000));",
+									"",
+									"pm.collectionVariables.set(\"PIMS_LAB_ORDER_ID\", \"pims-order-id-\"+Math.floor(Math.random() * 10000));",
+									"pm.collectionVariables.set(\"PIMS_LAB_PROFILE_ID_1\", \"pims-profile-id-\"+Math.floor(Math.random() * 10000));",
+									"pm.collectionVariables.set(\"PIMS_LAB_TEST_ID_1\", \"pims-test-id-\"+Math.floor(Math.random() * 10000));",
+									"pm.collectionVariables.set(\"PIMS_LAB_TEST_ID_2\", \"pims-test-id-\"+Math.floor(Math.random() * 10000));",
+									"",
+									"pm.collectionVariables.set(\"PIMS_PROVIDER_ID\", \"pims-pract-id-\"+Math.floor(Math.random() * 10000));",
+									"pm.collectionVariables.set(\"OMANG\", Math.floor(Math.random() * 10000000));",
+									"",
+									"pm.collectionVariables.set(\"birthDate\", moment().subtract(_.random(1,40), 'years').subtract(_.random(1,150), 'days').format(\"YYYY-MM-DD\"));",
+									"pm.collectionVariables.set(\"sex\", Math.random() < 0.5 ? \"male\" : \"female\");",
+									"pm.collectionVariables.set(\"firstName\", pm.variables.replaceIn('{{$randomFirstName}}'));",
+									"pm.collectionVariables.set(\"lastName\", pm.variables.replaceIn('{{$randomLastName}}'));",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "postman",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "postman",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"resourceType\": \"Patient\",\n    \"meta\": {\n        \"profile\": [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-patient\"\n        ]\n    },\n    \"identifier\": [\n        {\n            \"system\": \"http://moh.bw.org/ext/identifier/omang\",\n            \"value\": \"{{OMANG}}\",\n            \"use\": \"official\"\n        },\n        {\n            \"value\": \"{{PIMS_PATIENT_ID}}\",\n            \"type\": {\n                \"coding\": [\n                    {\n                        \"code\": \"MR\"\n                    }\n                ]\n            }\n        }\n    ],\n    \"name\": [\n        {\n            \"use\": \"official\",\n            \"family\": \"{{lastName}}\",\n            \"given\": [\n                \"{{firstName}}\"\n            ]\n        }\n    ],\n    \"gender\": \"{{sex}}\",\n    \"birthDate\": \"{{birthDate}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{openhim-url}}/CR/fhir/Patient",
+							"host": [
+								"{{openhim-url}}"
+							],
+							"path": [
+								"CR",
+								"fhir",
+								"Patient"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate PIMS Patient in CR",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"setTimeout(function(){}, 2000);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.response.to.be.withBody;",
+									"    pm.response.to.be.json;",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"A single patient record should be found.\", function () {",
+									"    pm.expect(jsonData.total).to.eql(1);",
+									"});",
+									"",
+									"pm.test(\"A golden record should be returned\", function() {",
+									"    var entries = jsonData.entry;",
+									"    pm.expect(entries).to.have.lengthOf(2);",
+									"    pm.expect(entries[1].resource.meta.tag[0].display).to.eq(\"Golden Record\");",
+									"});",
+									"",
+									"pm.test(\"Patient has correct birth date\", function() {",
+									"    var patient = jsonData.entry[0].resource;",
+									"    var dob = pm.collectionVariables.get(\"birthDate\");",
+									"    pm.expect(patient.birthDate).to.eq(dob)",
+									"});",
+									"",
+									"// Set Golden Record CRUID for Patient",
+									"pm.collectionVariables.set(\"patientCRUID\", jsonData.entry[1].resource.id);",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "postman",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "postman",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{openhim-url}}/CR/fhir/Patient?identifier={{PIMS_PATIENT_ID}}&_include=Patient:link",
+							"host": [
+								"{{openhim-url}}"
+							],
+							"path": [
+								"CR",
+								"fhir",
+								"Patient"
+							],
+							"query": [
+								{
+									"key": "identifier",
+									"value": "{{PIMS_PATIENT_ID}}"
+								},
+								{
+									"key": "_include",
+									"value": "Patient:link"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Add Similar Patient To CR",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"pm.collectionVariables.set(\"patientMRN\", pm.variables.replaceIn('{{$randomUUID}}'));",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "postman",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "postman",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"resourceType\": \"Patient\",\n    \"id\": \"{{patientMRN}}\",\n    \"meta\": {\n        \"profile\": [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-patient\"\n        ]\n    },\n    \"identifier\": [\n        {\n            \"system\": \"http://moh.bw.org/ext/identifier/omang\",\n            \"value\": \"{{OMANG}}\",\n            \"use\": \"official\"\n        },\n        {\n            \"value\": \"{{patientMRN}}\",\n            \"type\": {\n                \"coding\": [\n                    {\n                        \"code\": \"MR\"\n                    }\n                ]\n            }\n        }\n    ],\n    \"name\": [\n        {\n            \"use\": \"official\",\n            \"family\": \"{{lastName}}\",\n            \"given\": [\n                \"{{firstName}}\"\n            ]\n        }\n    ],\n    \"gender\": \"{{sex}}\",\n    \"birthDate\": \"{{birthDate}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{openhim-url}}/CR/fhir/Patient",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"CR",
+						"fhir",
+						"Patient"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Match in CR",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"A single patient record should be found.\", function () {",
+							"    pm.expect(jsonData.total).to.eql(1);",
+							"});",
+							"",
+							"pm.test(\"A golden record should be returned\", function() {",
+							"    var entries = jsonData.entry;",
+							"    pm.expect(entries).to.have.lengthOf(2);",
+							"    pm.expect(entries[1].resource.meta.tag[0].display).to.eq(\"Golden Record\");",
+							"});",
+							"",
+							"pm.test(\"Patient has correct birth date\", function() {",
+							"    var patient = jsonData.entry[0].resource;",
+							"    var dob = pm.collectionVariables.get(\"birthDate\");",
+							"    pm.expect(patient.birthDate).to.eq(dob)",
+							"});",
+							"",
+							"// Set Golden Record CRUID for Patient",
+							"pm.collectionVariables.set(\"patientCRUID\", jsonData.entry[1].resource.id);",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "postman",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "postman",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{openhim-url}}/CR/fhir/Patient?identifier={{patientMRN}}&_include=Patient:link",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"CR",
+						"fhir",
+						"Patient"
+					],
+					"query": [
+						{
+							"key": "identifier",
+							"value": "{{patientMRN}}"
+						},
+						{
+							"key": "_include",
+							"value": "Patient:link"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Patient In CR",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var moment = require('moment');",
+							"",
+							"pm.collectionVariables.set(\"newBirthDate\", moment().subtract(_.random(1,80), 'years').subtract(_.random(1,150), 'days').format(\"YYYY-MM-DD\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful PUT request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "postman",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "postman",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"resourceType\": \"Patient\",\n    \"id\": \"{{patientMRN}}\",\n    \"meta\": {\n        \"profile\": [\n            \"http://b-techbw.github.io/bw-lab-ig/StructureDefinition/bw-patient\"\n        ]\n    },\n    \"identifier\": [\n        {\n            \"system\": \"http://moh.bw.org/ext/identifier/omang\",\n            \"value\": \"{{OMANG}}\",\n            \"use\": \"official\"\n        },\n        {\n            \"value\": \"{{patientMRN}}\",\n            \"type\": {\n                \"coding\": [\n                    {\n                        \"code\": \"MR\"\n                    }\n                ]\n            }\n        }\n    ],\n    \"name\": [\n        {\n            \"use\": \"official\",\n            \"family\": \"{{lastName}}\",\n            \"given\": [\n                \"{{firstName}}\"\n            ]\n        }\n    ],\n    \"gender\": \"{{sex}}\",\n    \"birthDate\": \"{{newBirthDate}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{openhim-url}}/CR/fhir/Patient/{{patientMRN}}",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"CR",
+						"fhir",
+						"Patient",
+						"{{patientMRN}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Update in CR",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    pm.response.to.be.withBody;",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"A single patient record should be found.\", function () {",
+							"    pm.expect(jsonData.total).to.eql(1);",
+							"});",
+							"",
+							"pm.test(\"Patient has correct birth date\", function() {",
+							"    var patient = jsonData.entry[0].resource;",
+							"    var dob = pm.collectionVariables.get(\"newBirthDate\");",
+							"    pm.expect(patient.birthDate).to.eq(dob)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "postman",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "postman",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{openhim-url}}/CR/fhir/Patient?identifier={{patientMRN}}&_include=Patient:link",
+					"host": [
+						"{{openhim-url}}"
+					],
+					"path": [
+						"CR",
+						"fhir",
+						"Patient"
+					],
+					"query": [
+						{
+							"key": "identifier",
+							"value": "{{patientMRN}}"
+						},
+						{
+							"key": "_include",
+							"value": "Patient:link"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "postman",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "postman",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "patientMRN",
+			"value": ""
+		},
+		{
+			"key": "omang",
+			"value": ""
+		},
+		{
+			"key": "birthDate",
+			"value": ""
+		},
+		{
+			"key": "sex",
+			"value": ""
+		},
+		{
+			"key": "firstName",
+			"value": ""
+		},
+		{
+			"key": "lastName",
+			"value": ""
+		},
+		{
+			"key": "facilityCode",
+			"value": ""
+		},
+		{
+			"key": "patientCRUID",
+			"value": ""
+		},
+		{
+			"key": "newBirthDate",
+			"value": ""
+		},
+		{
+			"key": "PIMS_PATIENT_ID",
+			"value": ""
+		},
+		{
+			"key": "PIMS_FACILITY_CODE",
+			"value": ""
+		},
+		{
+			"key": "IPMS_FACILITY_CODE",
+			"value": ""
+		},
+		{
+			"key": "PIMS_LAB_ORDER_ID",
+			"value": ""
+		},
+		{
+			"key": "PIMS_LAB_PROFILE_ID_1",
+			"value": ""
+		},
+		{
+			"key": "PIMS_LAB_TEST_ID_1",
+			"value": ""
+		},
+		{
+			"key": "PIMS_LAB_TEST_ID_2",
+			"value": ""
+		},
+		{
+			"key": "PIMS_PROVIDER_ID",
+			"value": ""
+		},
+		{
+			"key": "OMANG",
+			"value": ""
+		}
+	]
+}
