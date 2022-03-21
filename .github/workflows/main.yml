@@ -51,7 +51,7 @@ jobs:
 
       - name: Run General Tests https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-77f89792-c73b-4c75-a450-5cb6f79230d4)
         env: 
-          POSTMAN_COLLECTION: /.postman/collections/1_general_tests.postman_collection.json
+          POSTMAN_COLLECTION: /.postman/collections/1_general_testS.postman_collection.json
         run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
 
       - name: Run CR Tests (https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-16a5a3c2-719f-40a6-ad06-a9530d3f2006)
