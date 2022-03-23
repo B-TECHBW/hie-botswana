@@ -92,15 +92,16 @@ services:
     volumes:
       - cr-data:/data/hapi
 
-  opencr-es:
+  es:
     container_name: es
+    hostname: es
     image: intrahealth/elasticsearch:latest
     restart: unless-stopped
     environment:
       - node.name=es01
       - discovery.type=single-node
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
     ulimits:
       memlock:
         soft: -1
@@ -109,6 +110,8 @@ services:
       - es:/usr/share/elasticsearch/data
     networks:
       - hie
+    healthcheck:
+      test: "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"
 
   ###
   # SHR
@@ -125,7 +128,9 @@ services:
     volumes:
       - ./configs/shr/config_ports.json:/app/config/config_docker.json
       - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
-
+    # entrypoint: node --inspect-brk=0.0.0.0 dist/app.js
+    # ports:
+    #   - 9229:9229
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -174,13 +179,13 @@ services:
       - 'traefik.http.routers.openhim-api.tls=true'
       - 'traefik.http.routers.openhim-api.entrypoints=web-secure'
       
-      - 'traefik.http.services.openhim-core.loadbalancer.server.port=5001'
+      - 'traefik.http.services.openhim-core.loadbalancer.server.port=5000'
       - 'traefik.http.services.openhim-core.loadbalancer.server.scheme=https'
       - 'traefik.http.routers.openhim-core.service=openhim-core'
-      - 'traefik.http.routers.openhim-core.rule=Host(`openhim.moh.org.bw`)'
+      - 'traefik.http.routers.openhim-core.rule=Host(`core.moh.org.bw`)'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-      
+
   openhim-console:
     container_name: openhim-console
     hostname: openhim-console

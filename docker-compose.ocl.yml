@@ -1,0 +1,223 @@
+version: '3.8'
+
+services:
+  ocl-db:
+    image: postgres:12.3-alpine
+    hostname: ocldb
+    restart: "always"
+    shm_size: "128mb"
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD-Postgres123}
+    healthcheck:
+      test: "pg_isready -U postgres"
+    networks:
+      - hie
+  redis:
+    hostname: redis
+    image: redis:6.0.6-alpine
+    restart: "always"
+    healthcheck:
+      test: "redis-cli ping"
+    networks:
+      - hie
+  ocl-api:
+    container_name: ocl-api
+    image: openconceptlab/oclapi2:production
+    hostname: ocl-api
+    restart: "always"
+    # ports:
+    #   - 8000:8000
+    depends_on:
+      - ocl-db
+      # do not depend on other services so tests and pylint uses less memory
+    environment:
+      - REDIS_HOST=${REDIS_HOST-redis}
+      - REDIS_PORT=${REDIS_PORT-6379}
+      - DB_HOST=${DB_HOST-ocldb}
+      - DB_PORT=${DB_PORT-5432}
+      - DB_PASSWORD=${DB_PASSWORD-Postgres123}
+      - ES_HOST=${ES_HOST-es}
+      - ES_PORT=${ES_PORT-9200}
+      - ENVIRONMENT=${ENVIRONMENT-production}
+      - DEBUG=${DEBUG-FALSE}
+      - SECRET_KEY
+      - SENTRY_DSN_KEY
+      - API_SUPERUSER_PASSWORD=${API_SUPERUSER_PASSWORD-Root123}
+      - API_SUPERUSER_TOKEN=${API_SUPERUSER_TOKEN-891b4b17feab99f3ff7e5b5d04ccc5da7aa96da6}
+      - API_BASE_URL=${API_BASE_URL-https://ocl-api.moh.org.bw}
+      - API_INTERNAL_BASE_URL=${API_INTERNAL_BASE_URL-http://ocl-api:8000}
+      - EMAIL_NOREPLY_PASSWORD
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_STORAGE_BUCKET_NAME
+      - AWS_REGION_NAME
+      - ERRBIT_URL
+      - ERRBIT_KEY
+    healthcheck:
+      test: "curl --silent --fail http://localhost:8000/version/ || exit 1"
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.ocl-api.rule=Host(`ocl-api.moh.org.bw`)'
+      - 'traefik.http.routers.ocl-api.tls=true'
+      - 'traefik.http.routers.ocl-api.entrypoints=web-secure'
+    networks:
+      - hie
+  celery:
+    image: openconceptlab/oclapi2:production
+    command: ["bash", "-c", "CELERY_WORKER_NAME=default ./start_celery_worker.sh -P prefork -Q default -c 2"]
+    restart: "always"
+    healthcheck:
+      test: ["CMD-SHELL", "-c", "CELERY_WORKER_NAME=default ./ping_celery_worker.sh"]
+    environment:
+      - REDIS_HOST=${REDIS_HOST-redis}
+      - REDIS_PORT=${REDIS_PORT-6379}
+      - DEBUG=${DEBUG-FALSE}
+      - ERRBIT_URL
+      - ERRBIT_KEY
+    networks:
+      - hie
+  celery_indexing:
+    image: openconceptlab/oclapi2:production
+    command: ["bash", "-c", "CELERY_WORKER_NAME=indexing ./start_celery_worker.sh -P prefork -Q indexing -c 2"]
+    restart: "always"
+    healthcheck:
+      test: ["CMD-SHELL", "-c", "CELERY_WORKER_NAME=indexing ./ping_celery_worker.sh"]
+    environment:
+      - REDIS_HOST=${REDIS_HOST-redis}
+      - REDIS_PORT=${REDIS_PORT-6379}
+      - DEBUG=${DEBUG-FALSE}
+      - ERRBIT_URL
+      - ERRBIT_KEY
+    networks:
+      - hie
+  celery_concurrent:
+    image: openconceptlab/oclapi2:production
+    command: ["bash", "-c", "CELERY_WORKER_NAME=concurrent ./start_celery_worker.sh -P prefork -Q concurrent -c 2"]
+    restart: "always"
+    healthcheck:
+      test:  ["CMD-SHELL", "-c", "CELERY_WORKER_NAME=concurrent ./ping_celery_worker.sh"]
+    environment:
+      - REDIS_HOST=${REDIS_HOST-redis}
+      - REDIS_PORT=${REDIS_PORT-6379}
+      - DEBUG=${DEBUG-FALSE}
+      - ERRBIT_URL
+      - ERRBIT_KEY
+    networks:
+      - hie
+  celery_bulk_import_0_1:
+    image: openconceptlab/oclapi2:production
+    command: ["bash", "-c", "CELERY_WORKER_NAME=bulk_import_0_1 ./start_celery_worker.sh -Q bulk_import_0,bulk_import_1 -c 1"]
+    restart: "always"
+    healthcheck:
+      test:  ["CMD-SHELL", "-c", "CELERY_WORKER_NAME=bulk_import_0_1 ./ping_celery_worker.sh"]
+    environment:
+      - REDIS_HOST=${REDIS_HOST-redis}
+      - REDIS_PORT=${REDIS_PORT-6379}
+      - DEBUG=${DEBUG-FALSE}
+      - ERRBIT_URL
+      - ERRBIT_KEY
+    networks:
+      - hie
+  celery_bulk_import_2_3:
+    image: openconceptlab/oclapi2:production
+    command: ["bash", "-c", "CELERY_WORKER_NAME=bulk_import_2_3 ./start_celery_worker.sh -Q bulk_import_2,bulk_import_3 -c 1"]
+    restart: "always"
+    healthcheck:
+      test:  ["CMD-SHELL", "-c", "CELERY_WORKER_NAME=bulk_import_2_3 ./ping_celery_worker.sh"]
+    environment:
+      - REDIS_HOST=${REDIS_HOST-redis}
+      - REDIS_PORT=${REDIS_PORT-6379}
+      - DEBUG=${DEBUG-FALSE}
+      - ERRBIT_URL
+      - ERRBIT_KEY
+    networks:
+      - hie
+  celery_bulk_import_root:
+    image: openconceptlab/oclapi2:production
+    command: ["bash", "-c", "CELERY_WORKER_NAME=bulk_import_root ./start_celery_worker.sh -Q bulk_import_root -c 1"]
+    restart: "always"
+    healthcheck:
+      test:  ["CMD-SHELL", "-c", "CELERY_WORKER_NAME=bulk_import_root ./ping_celery_worker.sh"]
+    environment:
+      - REDIS_HOST=${REDIS_HOST-redis}
+      - REDIS_PORT=${REDIS_PORT-6379}
+      - DEBUG=${DEBUG-FALSE}
+      - ERRBIT_URL
+      - ERRBIT_KEY
+    networks:
+      - hie
+  flower:
+    image: openconceptlab/oclapi2:production
+    command: ["bash", "-c", "./start_flower.sh"]
+    depends_on:
+      - redis
+    environment:
+      - FLOWER_USER=${FLOWER_USER-root}
+      - FLOWER_PASSWORD=${FLOWER_PASSWORD-Root123}
+      - REDIS_HOST=${REDIS_HOST-redis}
+      - REDIS_PORT=${REDIS_PORT-6379}
+    restart: "always"
+    healthcheck:
+      test: "curl --silent --fail -u $${FLOWER_USER:-root}:$${FLOWER_PASSWORD:-Root123} http://localhost:5555/metrics || exit 1"
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.flower.rule=Host(`flower.moh.org.bw`)'
+      - 'traefik.http.routers.flower.tls=true'
+      - 'traefik.http.routers.flower.entrypoints=web-secure'
+    networks:
+      - hie
+
+  ocl-web:
+    image: openconceptlab/oclweb2:production
+    container_name: ocl-web
+    hostname: ocl-web
+    ports:
+      - "4000:4000"
+    restart: on-failure
+    environment:
+      - API_URL=${API_URL-https://ocl-api.moh.org.bw}
+      - NODE_ENV=development
+      - WEB_PORT=4000
+      - RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY-6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI}
+      - GA_ACCOUNT_ID=${GA_ACCOUNT_ID-UA-000000-01}
+      - ERRBIT_URL
+      - ERRBIT_KEY
+      - HOTJAR_ID
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.ocl-web.rule=Host(`ocl.moh.org.bw`)'
+      - 'traefik.http.routers.ocl-web.tls=true'
+      - 'traefik.http.routers.ocl-web.entrypoints=web-secure'
+      - 'traefik.http.services.ocl-web.loadbalancer.server.port=4000'
+      - 'traefik.http.routers.ocl-web.service=ocl-web'
+    # command: ["bash", "-c", "/start.sh"]
+
+  ocl-client:
+    container_name: ocl-client
+    hostname: ocl-client
+    image: openmrs/ocl-client:latest
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.ocl-client.rule=Host(`concepts.moh.org.bw`)'
+      - 'traefik.http.routers.ocl-client.tls=true'
+      - 'traefik.http.routers.ocl-client.entrypoints=web-secure'
+    environment:
+      - OCL_API_HOST=${OCL_API_HOST:-https://ocl-api.moh.org.bw/}
+      - TRADITIONAL_OCL_HOST=${TRADITIONAL_OCL_HOST:-https://ocl.moh.org.bw}
+      - OCL_SIGNUP_URL=${OCL_SIGNUP_URL:-https://ocl.moh.org.bw/#/accounts/signup}
+      - ENVIRONMENT=${ENVIRONMENT:-dev}
+    networks:
+      - hie
+    healthcheck:
+      test: ["CMD", "curl", "-sSf", "localhost"]
+volumes:
+  postgres-data:
+  es-data:
+networks:
+  hie:
+    external: 
+      name: hie-botswana_hie

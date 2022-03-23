@@ -88,6 +88,7 @@ services:
   opencr-es:
     profiles: ["core"]
     container_name: es
+    hostname: es
     image: intrahealth/elasticsearch:latest
     restart: unless-stopped
     environment:
@@ -259,5 +260,6 @@ volumes:
     driver: local
   kafka-data:
     driver: local
+
 networks:
   hie:

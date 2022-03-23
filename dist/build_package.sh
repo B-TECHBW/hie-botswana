@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Pull latest images
-docker-compose -f docker-compose.local.yml pull
+docker-compose docker-compose.yml pull
+docker-compose -f docker-compose.ocl.yml docker-compose.yml pull
 
 # Save images to .tar files
 docker save --output ./dist/package/docker/nginx.tar nginx:latest
@@ -24,3 +25,10 @@ docker save --output ./dist/package/docker/mllp-tester.tar ghcr.io/b-techbw/mllp
 docker save --output ./dist/package/docker/zookeeper.tar bitnami/zookeeper:latest
 
 docker save --output ./dist/package/docker/kafka.tar bitnami/kafka:latest
+
+docker save --output ./dist/package/docker/traefik.tar bitnami/traefik:v2.6.1
+docker save --output ./dist/package/docker/postgres.tar postgres:12.3-alpine
+docker save --output ./dist/package/docker/oclapi.tar openconceptlab/oclapi2
+docker save --output ./dist/package/docker/redis.tar redis:6.0.6-alpine
+docker save --output ./dist/package/docker/oclweb.tar openconceptlab/oclweb2
+docker save --output ./dist/package/docker/oclclient.tar openmrs/ocl-client:latest
