@@ -1,4 +1,4 @@
 tls:
   certificates:
-    - certFile: /etc/certs/live/moh.org.bw/fullchain.pem
+    - certFile: /etc/certs/live/moh.org.bw/cert.pem
       keyFile: /etc/certs/live/moh.org.bw/privkey.pem
