@@ -14,9 +14,7 @@ version: '3.8'
 
 services:
   ###
-  # nginx reverse proxy
-  # TODO: set up to use non-root user. See https://www.rockyourcode.com/run-docker-nginx-as-non-root-user/
-  # TODO: Run letsencrypt as docker container: https://hub.docker.com/r/certbot/certbot/
+  # reverse proxy
   ###
   traefik:
     image: traefik:v2.6.1
@@ -37,6 +35,7 @@ services:
     - AWS_SECRET_ACCESS_KEY
     - AWS_HOSTED_ZONE_ID
 
+  ## TODO: Set up Traefik for AWS DNS properly and remove
   certbot:
     image: certbot/dns-route53
     container_name: certbot
@@ -206,7 +205,16 @@ services:
       - 'traefik.http.routers.openhim-console.entrypoints=web-secure'
     networks:
       - hie
-  
+
+  # Loads Default OpenHIM Config
+  openhim-config:
+    container_name: openhim-config
+    image: ghcr.io/i-tech-uw/openhim-config:v0.0.0
+    volumes:
+      - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
+    networks:
+      - hie
+
   mongo-db:
     container_name: mongo-db
     image: mongo:3.4
@@ -232,7 +240,6 @@ services:
       - 'traefik.http.routers.converter.rule=Host(`converter.moh.org.bw`)'
       - 'traefik.http.routers.converter.tls=true'
       - 'traefik.http.routers.converter.entrypoints=web-secure'
-      - 'traefik.http.services.converter.loadbalancer.server.port=2019'
 
   # Kafka
   zookeeper:
@@ -263,6 +270,35 @@ services:
     - hie
     entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
   
+  omang-api:
+    image: ghcr.io/b-techbw/omangsvc:latest
+    hostname: omang-api
+    container_name: omang-api
+    restart: unless-stopped
+    volumes:
+      - ./configs/omang/appsettings.json:/app/appsettings.json
+    networks:
+      - hie
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.omang.rule=Host(`omang.moh.org.bw`)'
+      - 'traefik.http.routers.omang.tls=true'
+      - 'traefik.http.routers.omang.entrypoints=web-secure'
+    ports:
+      - "8085:80"
+  oracle-db:
+    hostname: oracle-db
+    container_name: oracle-db
+    image: wnameless/oracle-xe-11g-r2
+    environment:
+    - ORACLE_ALLOW_REMOTE=true
+    ports:
+    - 1521:1521
+    volumes:
+      - ./configs/omang/db:/docker-entrypoint-initdb.d
+    networks:
+    - hie
 volumes:
   es:
     driver: local
