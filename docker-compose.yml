@@ -118,7 +118,7 @@ services:
   shr:
     container_name: shr
     hostname: shr
-    image: ghcr.io/i-tech-uw/shared-health-record:${SHR_VERSION}
+    image: ghcr.io/i-tech-uw/shared-health-record:${SHR_VERSION-latest}
     restart: unless-stopped
     environment:
       - NODE_ENV=docker
@@ -228,7 +228,7 @@ services:
     container_name: fhir-converter
     hostname: fhir-converter
     restart: unless-stopped
-    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION}
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
     volumes:
       - ./configs/fhir-converter/config_port.json:/app/config.json
       - /app/src/service-templates
@@ -290,7 +290,7 @@ services:
   oracle-db:
     hostname: oracle-db
     container_name: oracle-db
-    image: wnameless/oracle-xe-11g-r2
+    image: wnameless/oracle-xe-11g-r2:latest
     environment:
     - ORACLE_ALLOW_REMOTE=true
     ports:

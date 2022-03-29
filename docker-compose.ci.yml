@@ -224,6 +224,29 @@ services:
       retries: 3      
     networks:
       - hie
+
+  omang-api:
+    image: ghcr.io/b-techbw/omangsvc:latest
+    hostname: omang-api
+    container_name: omang-api
+    restart: unless-stopped
+    volumes:
+      - ./configs/omang/appsettings.json:/app/appsettings.json
+    networks:
+      - hie
+
+  oracle-db:
+    hostname: oracle-db
+    container_name: oracle-db
+    image: wnameless/oracle-xe-11g-r2:latest
+    environment:
+    - ORACLE_ALLOW_REMOTE=true
+    ports:
+    - 1521:1521
+    volumes:
+      - ./configs/omang/db:/docker-entrypoint-initdb.d
+    networks:
+    - hie
 volumes:
   es:
     driver: local
