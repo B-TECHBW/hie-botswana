@@ -15,8 +15,5 @@ entryPoints:
 api:
   insecure: true
 providers:
-  file:
-    watch: true
-    directory: /etc/traefik/dynamic_conf
   docker:
     exposedByDefault: false

@@ -1,5 +1,5 @@
 #!/bin/bash
-hostname="shr"
+hostname="10.171.5.12"
 port=3001
 
 for hl7File in messages/*

@@ -10,8 +10,8 @@
   "mediator": {
     "api": {
       "username": "root@openhim.org",
-      "password": "bw-openhim",
-      "apiURL": "https://core.moh.org.bw",
+      "password": "openhim",
+      "apiURL": "https://openhim-core:8080",
       "trustSelfSigned": false,
       "urn": "urn:mediator:hl7v2tofhir_translator"
     }
