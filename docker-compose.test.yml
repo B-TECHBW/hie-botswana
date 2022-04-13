@@ -1,5 +1,5 @@
- services:
-  
+version: '3.8'
+services:
   # Newman Tests
   newman:
     image: postman/newman
@@ -11,11 +11,12 @@
 
   mllp_tests:
     container_name: mllp_tests
-    image: ghcr.io/b-techbw/mllp-tester:main
+    image: ghcr.io/b-techbw/mllp-tester:latest
     networks:
       - hie
-    volumes:
-      - ./test/mllp:/test
-  networks:
-    hie: 
-      external: true
+
+networks:
+  hie:
+    external: true
+    name: hie-botswana_hie
+    
