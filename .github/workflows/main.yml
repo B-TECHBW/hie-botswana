@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-test:
-    timeout-minutes: 10
+    timeout-minutes: 20
     runs-on: ubuntu-latest
 
     steps:
@@ -18,41 +18,42 @@ jobs:
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+        
+      -
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull containers
-        run: COMPOSE_PROFILES=mediators,support,test,config docker-compose -f docker-compose.ci.yml pull
+        run: docker-compose pull
 
       - name: Cache containers
         uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
         
       - name: Start support containers
-        run: docker-compose -f docker-compose.ci.yml --profile support up -d
+        run: docker-compose up -d
         
-      - name: Sleep for 120 seconds
-        run: sleep 120
+      - name: Sleep for 150 seconds
+        run: sleep 150
         shell: bash
 
       - name: Display docker logs for openhim config
-        run: docker-compose -f docker-compose.ci.yml logs openhim-config
-
-      - name: Start other mediators
-        run: docker-compose -f docker-compose.ci.yml --profile mediators up -d
-      
-      - name: Sleep for 30 seconds
-        run: sleep 30
-        shell: bash
+        run: docker-compose logs openhim-config
 
       - name: Display container status
-        run: COMPOSE_PROFILES=mediators,support,test,config docker-compose -f docker-compose.ci.yml ps
+        run: docker-compose ps
 
       - name: Display logs 
-        run: docker-compose -f docker-compose.ci.yml --profile mediators logs
+        run: docker-compose logs shr opencr fhir-converter
 
       - name: Run General Tests https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-77f89792-c73b-4c75-a450-5cb6f79230d4)
         env: 
           POSTMAN_COLLECTION: /.postman/collections/1_general_tests.postman_collection.json
-        run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
+        run: docker-compose -f docker-compose.ci.yml up --exit-code-from newman newman 
 
       - name: Run CR Tests (https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-16a5a3c2-719f-40a6-ad06-a9530d3f2006)
         env: 
@@ -68,6 +69,10 @@ jobs:
         env: 
           POSTMAN_COLLECTION: /.postman/collections/4_hl7_conversion.postman_collection.json
         run: docker-compose --profile test -f docker-compose.ci.yml up --exit-code-from newman newman 
+
+      - name: Display logs 
+        if: always()
+        run: docker-compose logs shr opencr fhir-converter openhim-core
 
       - name: Stop containers
         if: always()
