@@ -20,9 +20,8 @@ services:
     image: traefik:v2.6.1
     container_name: traefik
     ports:
-      - '80:80'
       - '443:443'
-      - '8080:8080'
+      - '8081:8080'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./configs/traefik/traefik.yml:/etc/traefik/traefik.yml
@@ -110,7 +109,7 @@ services:
       - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
     # entrypoint: node --inspect-brk=0.0.0.0 dist/app.js
     ports:
-       - 3001:3001
+       - 80:3001
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -236,7 +235,7 @@ services:
     networks:
     - hie
     volumes:
-      - /data
+      - /tmp
   kafka:
     image: "bitnami/kafka:latest"
     hostname: kafka
@@ -250,8 +249,6 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
     volumes:
       - kafka-data:/bitnami/kafka
-    depends_on:
-      - zookeeper
     networks:
     - hie
     entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
