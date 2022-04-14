@@ -11,9 +11,11 @@ services:
 
   mllp_tests:
     container_name: mllp_tests
-    image: ghcr.io/b-techbw/mllp-tester:latest
+    image: ghcr.io/b-techbw/mllp-tester:main
     networks:
       - hie
+    volumes:
+      - ./test/mllp:/test
 
 networks:
   hie:

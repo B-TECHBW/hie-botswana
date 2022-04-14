@@ -26,28 +26,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./configs/traefik/traefik.yml:/etc/traefik/traefik.yml
-      - ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
-      - certs:/etc/certs
+#      - ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
+      # - certs:/etc/certs
     networks:
       - hie
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    - AWS_HOSTED_ZONE_ID
-
-  ## TODO: Set up Traefik for AWS DNS properly and remove
-  certbot:
-    image: certbot/dns-route53
-    container_name: certbot
-    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    volumes:
-    - certs:/etc/letsencrypt
-    - letsencrypt:/var/lib/letsencrypt
-    networks:
-    - hie
 
   ###
   # OpenCR
@@ -68,13 +50,12 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=hie-botswana_hie'
-      - 'traefik.http.routers.opencr.rule=Host(`opencr.moh.org.bw`)'
+      - 'traefik.http.routers.opencr.rule=Host(`opencr.moh.org.bw`) || PathPrefix(`/opencr/`)'
+      
       - 'traefik.http.routers.opencr.tls=true'
       - 'traefik.http.routers.opencr.entrypoints=web-secure'
       - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
 
-      # - 'traefik.http.routers.opencr.middlewares=add-crux'
-      # - 'traefik.http.middlewares.add-crux.addPrefix.prefix=/crux'
 
   opencr-fhir:
     image: hapiproject/hapi:latest
@@ -127,9 +108,9 @@ services:
     volumes:
       - ./configs/shr/config_ports.json:/app/config/config_docker.json
       - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
-    # entrypoint: node --inspect-brk=0.0.0.0 dist/app.js
-    # ports:
-    #   - 9229:9229
+    entrypoint: node --inspect-brk=0.0.0.0 dist/app.js
+    ports:
+       - 3001:3001
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -166,7 +147,7 @@ services:
       - hie
     volumes:
       - ./configs/openhim/healthcheck.js:/healthcheck.js
-    #   - ./configs/openhim/config.json:/app/config/default.json
+      - ./configs/openhim/config.json:/app/config/default.json
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=hie-botswana_hie'
@@ -177,6 +158,8 @@ services:
       - 'traefik.http.routers.openhim-api.rule=Host(`openhim-api.moh.org.bw`)'
       - 'traefik.http.routers.openhim-api.tls=true'
       - 'traefik.http.routers.openhim-api.entrypoints=web-secure'
+      # - 'traefik.http.routers.openhim-api.middlewares=openhim-api-stripprefix'
+      # - 'traefik.http.middlewares.openhim-api-stripprefix.stripprefix.prefixes=/openhim-api'
       
       - 'traefik.http.services.openhim-core.loadbalancer.server.port=5000'
       - 'traefik.http.services.openhim-core.loadbalancer.server.scheme=https'
@@ -184,7 +167,8 @@ services:
       - 'traefik.http.routers.openhim-core.rule=Host(`core.moh.org.bw`)'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-
+      # - 'traefik.http.routers.openhim-core.middlewares=openhim-core-stripprefix'
+      # - 'traefik.http.middlewares.openhim-core-stripprefix.stripprefix.prefixes=/openhim-core'
   openhim-console:
     container_name: openhim-console
     hostname: openhim-console
@@ -200,9 +184,11 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=hie-botswana_hie'
-      - 'traefik.http.routers.openhim-console.rule=Host(`openhim.moh.org.bw`)'
+      - 'traefik.http.routers.openhim-console.rule=PathPrefix(`/openhim/`)'
       - 'traefik.http.routers.openhim-console.tls=true'
       - 'traefik.http.routers.openhim-console.entrypoints=web-secure'
+      - 'traefik.http.routers.openhim-console.middlewares=openhim-console-stripprefix'
+      - 'traefik.http.middlewares.openhim-console-stripprefix.stripprefix.prefixes=/openhim'
     networks:
       - hie
 
@@ -237,7 +223,7 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=hie-botswana_hie'
-      - 'traefik.http.routers.converter.rule=Host(`converter.moh.org.bw`)'
+      - 'traefik.http.routers.converter.rule=Host(`converter.moh.org.bw`) || PathPrefix(`/converter/`)'
       - 'traefik.http.routers.converter.tls=true'
       - 'traefik.http.routers.converter.entrypoints=web-secure'
 
@@ -286,7 +272,8 @@ services:
       - 'traefik.http.routers.omang.tls=true'
       - 'traefik.http.routers.omang.entrypoints=web-secure'
     ports:
-      - "8085:80"
+      - 8088:80
+
   oracle-db:
     hostname: oracle-db
     container_name: oracle-db
