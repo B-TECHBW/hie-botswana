@@ -108,7 +108,7 @@ services:
     volumes:
       - ./configs/shr/config_ports.json:/app/config/config_docker.json
       - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
-    # entrypoint: node --inspect-brk=0.0.0.0 dist/app.js
+    entrypoint: node --inspect-brk=0.0.0.0 dist/app.js
     ports:
        - 3001:3001
   shr-fhir:
@@ -147,7 +147,7 @@ services:
       - hie
     volumes:
       - ./configs/openhim/healthcheck.js:/healthcheck.js
-    #   - ./configs/openhim/config.json:/app/config/default.json
+      - ./configs/openhim/config.json:/app/config/default.json
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=hie-botswana_hie'
@@ -155,20 +155,20 @@ services:
       - 'traefik.http.services.openhim-api.loadbalancer.server.port=8080'
       - 'traefik.http.services.openhim-api.loadbalancer.server.scheme=https'
       - 'traefik.http.routers.openhim-api.service=openhim-api'
-      - 'traefik.http.routers.openhim-api.rule=PathPrefix(`/openhim-api`)'
+      - 'traefik.http.routers.openhim-api.rule=Host(`openhim-api.moh.org.bw`)'
       - 'traefik.http.routers.openhim-api.tls=true'
       - 'traefik.http.routers.openhim-api.entrypoints=web-secure'
-      - 'traefik.http.routers.openhim-api.middlewares=openhim-api-stripprefix'
-      - 'traefik.http.middlewares.openhim-api-stripprefix.stripprefix.prefixes=/openhim-api'
+      # - 'traefik.http.routers.openhim-api.middlewares=openhim-api-stripprefix'
+      # - 'traefik.http.middlewares.openhim-api-stripprefix.stripprefix.prefixes=/openhim-api'
       
       - 'traefik.http.services.openhim-core.loadbalancer.server.port=5000'
       - 'traefik.http.services.openhim-core.loadbalancer.server.scheme=https'
       - 'traefik.http.routers.openhim-core.service=openhim-core'
-      - 'traefik.http.routers.openhim-core.rule=PathPrefix(`/openhim-core/`)'
+      - 'traefik.http.routers.openhim-core.rule=Host(`core.moh.org.bw`)'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-      - 'traefik.http.routers.openhim-core.middlewares=openhim-core-stripprefix'
-      - 'traefik.http.middlewares.openhim-core-stripprefix.stripprefix.prefixes=/openhim-core'
+      # - 'traefik.http.routers.openhim-core.middlewares=openhim-core-stripprefix'
+      # - 'traefik.http.middlewares.openhim-core-stripprefix.stripprefix.prefixes=/openhim-core'
   openhim-console:
     container_name: openhim-console
     hostname: openhim-console
@@ -268,11 +268,12 @@ services:
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=hie-botswana_hie'
-      - 'traefik.http.routers.omang.rule=Host(`omang.moh.org.bw`) || PathPrefix(`/omang/`)'
+      - 'traefik.http.routers.omang.rule=Host(`omang.moh.org.bw`)'
       - 'traefik.http.routers.omang.tls=true'
       - 'traefik.http.routers.omang.entrypoints=web-secure'
     ports:
-      - "8085:80"
+      - 8088:80
+
   oracle-db:
     hostname: oracle-db
     container_name: oracle-db
