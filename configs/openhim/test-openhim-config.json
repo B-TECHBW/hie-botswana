@@ -422,11 +422,15 @@
         {
           "name": "Omang API",
           "host": "omang-api",
-          "port": "443",
+          "port": "80",
           "type": "http",
+          "forwardAuthHeader": false,
           "path": "",
-          "pathTransform": "s/omang/api\/Omang/g",
-          "primary": true
+          "pathTransform": "s/omang/api\\/Omang/g",
+          "primary": true,
+          "secured": false,
+          "username": "omanghie",
+          "password": "omanghie"
         }
       ],
       "allow": [
@@ -444,11 +448,15 @@
         {
           "name": "BDRS API",
           "host": "omang-api",
-          "port": "443",
+          "port": "80",
           "type": "http",
+          "forwardAuthHeader": false,
           "path": "",
-          "pathTransform": "s/bdrs/api\/BDRS/g",
-          "primary": true
+          "pathTransform": "s/bdrs/api\\/BDRS/g",
+          "primary": true,
+          "secured": false,
+          "username": "omanghie",
+          "password": "omanghie"
         }
       ],
       "allow": [
@@ -464,13 +472,18 @@
       "type": "http",
       "routes": [
         {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
           "name": "Patient API",
           "host": "omang-api",
-          "port": "443",
-          "type": "http",
+          "port": 80,
           "path": "/api/Patient/get",
           "pathTransform": "",
-          "primary": true
+          "primary": true,
+          "secured": false,
+          "username": "omanghie",
+          "password": "omanghie"
         }
       ],
       "allow": [
