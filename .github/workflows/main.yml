@@ -69,6 +69,11 @@ jobs:
         env: 
           POSTMAN_COLLECTION: /.postman/collections/4_hl7_conversion.postman_collection.json
         run: docker-compose -f docker-compose.test.yml up --exit-code-from newman newman 
+      
+      - name: Run Patient Identity Validation Tests (https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-e7128a3a-616d-4fc8-8e4a-615990a97756?action=share&creator=1525496)
+        env: 
+          POSTMAN_COLLECTION: /.postman/collections/5_patient_identity.postman_collection.json
+        run: docker-compose -f docker-compose.test.yml up --exit-code-from newman newman 
 
       - name: Display logs 
         if: always()
