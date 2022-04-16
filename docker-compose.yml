@@ -49,6 +49,20 @@ services:
     networks:
     - hie
 
+  ## TODO: Set up Traefik for AWS DNS properly and remove
+  certbot:
+    image: certbot/dns-route53
+    container_name: certbot
+    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
+    environment:
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY
+    volumes:
+    - certs:/etc/letsencrypt
+    - letsencrypt:/var/lib/letsencrypt
+    networks:
+    - hie
+
   ###
   # OpenCR
   ###
@@ -73,9 +87,12 @@ services:
       - 'traefik.http.routers.opencr.entrypoints=web-secure'
       - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
 
+<<<<<<< Updated upstream
       # - 'traefik.http.routers.opencr.middlewares=add-crux'
       # - 'traefik.http.middlewares.add-crux.addPrefix.prefix=/crux'
 
+=======
+>>>>>>> Stashed changes
   opencr-fhir:
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
@@ -127,9 +144,13 @@ services:
     volumes:
       - ./configs/shr/config_ports.json:/app/config/config_docker.json
       - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
+<<<<<<< Updated upstream
     # entrypoint: node --inspect-brk=0.0.0.0 dist/app.js
     # ports:
     #   - 9229:9229
+=======
+
+>>>>>>> Stashed changes
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -271,7 +292,7 @@ services:
     entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
   
   omang-api:
-    image: ghcr.io/b-techbw/omangsvc:latest
+    image: ghcr.io/b-techbw/omangsvc:v1.3.1
     hostname: omang-api
     container_name: omang-api
     restart: unless-stopped

@@ -410,6 +410,72 @@
         "id": "6112c011b572800013c71ec0",
         "name": "Super User"
       }
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "name": "Omang",
+      "urlPattern": "^/omang.*$",
+      "type": "http",
+      "routes": [
+        {
+          "name": "Omang API",
+          "host": "omang-api",
+          "port": "443",
+          "type": "http",
+          "path": "",
+          "pathTransform": "s/omang/api\/Omang/g",
+          "primary": true
+        }
+      ],
+      "allow": [
+        "test"
+      ]
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "name": "BDRS",
+      "urlPattern": "^/bdrs.*$",
+      "type": "http",
+      "routes": [
+        {
+          "name": "BDRS API",
+          "host": "omang-api",
+          "port": "443",
+          "type": "http",
+          "path": "",
+          "pathTransform": "s/bdrs/api\/BDRS/g",
+          "primary": true
+        }
+      ],
+      "allow": [
+        "test"
+      ]
+    },
+    {
+      "methods": [
+        "GET"
+      ],
+      "name": "Patient",
+      "urlPattern": "^/CR/validate/Patient.*$",
+      "type": "http",
+      "routes": [
+        {
+          "name": "Patient API",
+          "host": "omang-api",
+          "port": "443",
+          "type": "http",
+          "path": "/api/Patient/get",
+          "pathTransform": "",
+          "primary": true
+        }
+      ],
+      "allow": [
+        "test"
+      ]
     }
   ],
   "ContactGroups": []
