@@ -1,0 +1,726 @@
+{
+	"info": {
+		"_postman_id": "e7128a3a-616d-4fc8-8e4a-615990a97756",
+		"name": "4. Omang & BDRS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "OpenMRS Queries",
+			"item": [
+				{
+					"name": "SearchPatientViaIdentifierSetSystem",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "postman",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "postman",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{openhim-core-url}}/CR/validate/Patient?identifier={{system}}|{{patientId}}",
+							"host": [
+								"{{openhim-core-url}}"
+							],
+							"path": [
+								"CR",
+								"validate",
+								"Patient"
+							],
+							"query": [
+								{
+									"key": "identifier",
+									"value": "{{system}}|{{patientId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "SearchPatientViaIdentifierSetSystemPassportNumber",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{openhim-core-url}}/CR/validate/Patient?identifier=urn:ietf:rfc:3986|1234",
+									"host": [
+										"{{openhim-core-url}}"
+									],
+									"path": [
+										"CR",
+										"validate",
+										"Patient"
+									],
+									"query": [
+										{
+											"key": "identifier",
+											"value": "urn:ietf:rfc:3986|1234"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "SearchPatientViaIdentifierSetSystemBirthCertificate",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{openhim-core-url}}/CR/validate/Patient?identifier=http://moh.bw.org/ext/identifier/bcn|{{patientId}}",
+									"host": [
+										"{{openhim-core-url}}"
+									],
+									"path": [
+										"CR",
+										"validate",
+										"Patient"
+									],
+									"query": [
+										{
+											"key": "identifier",
+											"value": "http://moh.bw.org/ext/identifier/bcn|{{patientId}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "SearchPatientViaIdentifierSetSystemNationalIdNumber",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{openhim-core-url}}/CR/validate/Patient?identifier=http://moh.bw.org/ext/identifier/omang|{{patientId}}",
+									"host": [
+										"{{openhim-core-url}}"
+									],
+									"path": [
+										"CR",
+										"validate",
+										"Patient"
+									],
+									"query": [
+										{
+											"key": "identifier",
+											"value": "http://moh.bw.org/ext/identifier/omang|{{patientId}}"
+										}
+									]
+								}
+							},
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Direct API",
+			"item": [
+				{
+					"name": "Check Omang Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"true\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{omang-url}}/api/omang/online",
+							"host": [
+								"{{omang-url}}"
+							],
+							"path": [
+								"api",
+								"omang",
+								"online"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Person by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include('\"resourceType\":\"Patient\"');",
+									"    pm.expect(pm.response.text()).to.include(pm.collectionVariables.get(\"patientId\")",
+									");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{omang-url}}/api/omang/GetById?ID={{patientId}}",
+							"host": [
+								"{{omang-url}}"
+							],
+							"path": [
+								"api",
+								"omang",
+								"GetById"
+							],
+							"query": [
+								{
+									"key": "ID",
+									"value": "{{patientId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Omang Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include('\"resourceType\":\"Patient\"');",
+									"    pm.expect(pm.response.text()).to.include(pm.collectionVariables.get(\"patientId\")",
+									");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{omang-url}}/api/Patient/Get?identifier=http://moh.bw.org/ext/identifier/omang|{{patientId}}",
+							"host": [
+								"{{omang-url}}"
+							],
+							"path": [
+								"api",
+								"Patient",
+								"Get"
+							],
+							"query": [
+								{
+									"key": "identifier",
+									"value": "http://moh.bw.org/ext/identifier/omang|{{patientId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check BDRS Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"// pm.test(\"Body matches string\", function () {",
+									"//     pm.expect(pm.response.text()).to.include(\"true\");",
+									"// });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{omang-url}}/api/bdrs/online",
+							"host": [
+								"{{omang-url}}"
+							],
+							"path": [
+								"api",
+								"bdrs",
+								"online"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "password",
+						"value": "omanghie",
+						"type": "string"
+					},
+					{
+						"key": "username",
+						"value": "omanghie",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "OpenHIM API Passthrough",
+			"item": [
+				{
+					"name": "Check Omang Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include(\"true\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{core-url}}/omang/online",
+							"host": [
+								"{{core-url}}"
+							],
+							"path": [
+								"omang",
+								"online"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Person by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include('\"resourceType\":\"Patient\"');",
+									"    pm.expect(pm.response.text()).to.include(pm.collectionVariables.get(\"patientId\")",
+									");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{core-url}}/omang/GetById?ID={{patientId}}",
+							"host": [
+								"{{core-url}}"
+							],
+							"path": [
+								"omang",
+								"GetById"
+							],
+							"query": [
+								{
+									"key": "ID",
+									"value": "{{patientId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Omang Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Body matches string\", function () {",
+									"    pm.expect(pm.response.text()).to.include('\"resourceType\":\"Patient\"');",
+									"    pm.expect(pm.response.text()).to.include(pm.collectionVariables.get(\"patientId\")",
+									");",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{core-url}}/CR/validate/Patient?identifier=http://moh.bw.org/ext/identifier/omang|{{patientId}}",
+							"host": [
+								"{{core-url}}"
+							],
+							"path": [
+								"CR",
+								"validate",
+								"Patient"
+							],
+							"query": [
+								{
+									"key": "identifier",
+									"value": "http://moh.bw.org/ext/identifier/omang|{{patientId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check BDRS Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"// pm.test(\"Body matches string\", function () {",
+									"//     pm.expect(pm.response.text()).to.include(\"true\");",
+									"// });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{core-url}}/bdrs/online",
+							"host": [
+								"{{core-url}}"
+							],
+							"path": [
+								"bdrs",
+								"online"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": [
+					{
+						"key": "password",
+						"value": "postman",
+						"type": "string"
+					},
+					{
+						"key": "username",
+						"value": "postman",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "OpenHIM Channel API",
+			"item": [
+				{
+					"name": "Check Omang Status - OpenHIM",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "postman",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "postman",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "ApiKey",
+								"value": "T01BTkcuT1BFTkhJTS4yNWMyZGJkNi1lYzgxLTRlZTYtODI5NS0zNDI3MTIwNzNiZGU=",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{openhim-core-url}}/omang/online",
+							"host": [
+								"{{openhim-core-url}}"
+							],
+							"path": [
+								"omang",
+								"online"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check BDRS Status - OpenHIM",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "postman",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "postman",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "ApiKey",
+								"value": "T01BTkcuT1BFTkhJTS4yNWMyZGJkNi1lYzgxLTRlZTYtODI5NS0zNDI3MTIwNzNiZGU=",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{openhim-core-url}}/omang/online",
+							"host": [
+								"{{openhim-core-url}}"
+							],
+							"path": [
+								"omang",
+								"online"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Should access swagger index page",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{omang-url}}/swagger/",
+					"host": [
+						"{{omang-url}}"
+					],
+					"path": [
+						"swagger",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "omang-url",
+			"value": "http://omang-api",
+			"type": "string"
+		},
+		{
+			"key": "patientId",
+			"value": "210711926"
+		},
+		{
+			"key": "core-url",
+			"value": "http://openhim-core:5001",
+			"type": "string"
+		},
+		{
+			"key": "system",
+			"value": "http://moh.bw.org/ext/identifier/omang",
+			"type": "string"
+		}
+	]
+}

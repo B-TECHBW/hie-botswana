@@ -18,6 +18,16 @@
 			"enabled": true
 		},
 		{
+			"key": "core-url",
+			"value": "http://openhim-core:5001",
+			"enabled": true
+		},
+		{
+			"key": "omang-url",
+			"value": "http://omang-api",
+			"enabled": true
+		},
+		{
 			"key": "shr-url",
 			"value": "http://shr:3000",
 			"enabled": true
