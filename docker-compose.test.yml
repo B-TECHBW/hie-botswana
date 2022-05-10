@@ -14,6 +14,8 @@ services:
     image: ghcr.io/b-techbw/mllp-tester:latest
     networks:
       - hie
+    volumes:
+      - ./test/mllp:/test
 
 networks:
   hie:
