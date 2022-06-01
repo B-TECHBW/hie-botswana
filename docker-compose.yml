@@ -26,43 +26,29 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./configs/traefik/traefik.yml:/etc/traefik/traefik.yml
-      - ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
-      - certs:/etc/certs
+      #- ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
+      #- certs:/etc/certs
     networks:
       - hie
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    - AWS_HOSTED_ZONE_ID
+    # environment:
+    # - AWS_ACCESS_KEY_ID
+    # - AWS_SECRET_ACCESS_KEY
+    # - AWS_HOSTED_ZONE_ID
 
   ## TODO: Set up Traefik for AWS DNS properly and remove
-  certbot:
-    image: certbot/dns-route53
-    container_name: certbot
-    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    volumes:
-    - certs:/etc/letsencrypt
-    - letsencrypt:/var/lib/letsencrypt
-    networks:
-    - hie
-
-  ## TODO: Set up Traefik for AWS DNS properly and remove
-  certbot:
-    image: certbot/dns-route53
-    container_name: certbot
-    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    volumes:
-    - certs:/etc/letsencrypt
-    - letsencrypt:/var/lib/letsencrypt
-    networks:
-    - hie
-
+  # certbot:
+  #   image: certbot/dns-route53
+  #   container_name: certbot
+  #   entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
+  #   environment:
+  #   - AWS_ACCESS_KEY_ID
+  #   - AWS_SECRET_ACCESS_KEY
+  #   volumes:
+  #   - certs:/etc/letsencrypt
+  #   - letsencrypt:/var/lib/letsencrypt
+  #   networks:
+  #   - hie
+    
   ###
   # OpenCR
   ###
@@ -152,7 +138,8 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
-
+    ports:
+      - 8090:8080
   ###
   # OpenHIM
   ###
@@ -192,14 +179,18 @@ services:
       - 'traefik.http.routers.openhim-core.rule=Host(`core.moh.org.bw`)'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-
+    ports:
+      - 5001:5001
+      - 8091:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   openhim-console:
     container_name: openhim-console
     hostname: openhim-console
     image: jembi/openhim-console:latest
     restart: unless-stopped
     volumes:
-      - ./configs/openhim-console/default.json:/usr/share/nginx/html/config/default.json
+      - ./configs/openhim-console/dev.json:/usr/share/nginx/html/config/default.json
     healthcheck:
       test: "curl -sS http://openhim-console || exit 1"
       interval: 10s
@@ -213,6 +204,8 @@ services:
       - 'traefik.http.routers.openhim-console.entrypoints=web-secure'
     networks:
       - hie
+    ports:
+      - 3333:80
 
   # Loads Default OpenHIM Config
   openhim-config:
@@ -239,7 +232,7 @@ services:
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
     volumes:
       - ./configs/fhir-converter/config_port.json:/app/config.json
-      - /app/src/service-templates
+      - ./configs/fhir-converter/templates:/app/src/service-templates
     networks:
       - hie
     labels:
@@ -248,10 +241,13 @@ services:
       - 'traefik.http.routers.converter.rule=Host(`converter.moh.org.bw`)'
       - 'traefik.http.routers.converter.tls=true'
       - 'traefik.http.routers.converter.entrypoints=web-secure'
+    ports:
+      - 2019:2019
 
   # Kafka
   zookeeper:
     image: "bitnami/zookeeper:latest"
+    container_name: zookeeper
     hostname: zookeeper
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
@@ -259,6 +255,8 @@ services:
     - hie
     volumes:
       - /data
+    restart: unless-stopped
+
   kafka:
     image: "bitnami/kafka:latest"
     hostname: kafka
@@ -277,9 +275,11 @@ services:
     networks:
     - hie
     entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
-  
+    ports:
+      - 9092:9092
+    restart: unless-stopped
   omang-api:
-    image: ghcr.io/b-techbw/omangsvc:v1.3.2
+    image: ghcr.io/b-techbw/omangsvc:v1.5.5
     hostname: omang-api
     container_name: omang-api
     restart: unless-stopped
