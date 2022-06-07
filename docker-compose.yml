@@ -279,7 +279,7 @@ services:
       - 9092:9092
     restart: unless-stopped
   omang-api:
-    image: ghcr.io/b-techbw/omangsvc:v1.5.5
+    image: ghcr.io/b-techbw/omangsvc:${OMANG_SVC_VERSION-latest}
     hostname: omang-api
     container_name: omang-api
     restart: unless-stopped
