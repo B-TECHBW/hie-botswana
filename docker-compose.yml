@@ -87,6 +87,7 @@ services:
       retries: 3
     volumes:
       - cr-data:/data/hapi
+      - ./configs/opencr/application.yml:/data/hapi/application.yaml
     env_file:
       - ./configs/opencr/.env
   es:
@@ -132,6 +133,7 @@ services:
     restart: unless-stopped
     volumes:
       - shr-data:/data/hapi
+      - ./configs/shr/application.yml:/data/hapi/application.yaml
     networks:
       - hie
     healthcheck:
