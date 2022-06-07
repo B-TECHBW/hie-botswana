@@ -26,43 +26,29 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./configs/traefik/traefik.yml:/etc/traefik/traefik.yml
-      - ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
-      - certs:/etc/certs
+      #- ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
+      #- certs:/etc/certs
     networks:
       - hie
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    - AWS_HOSTED_ZONE_ID
+    # environment:
+    # - AWS_ACCESS_KEY_ID
+    # - AWS_SECRET_ACCESS_KEY
+    # - AWS_HOSTED_ZONE_ID
 
   ## TODO: Set up Traefik for AWS DNS properly and remove
-  certbot:
-    image: certbot/dns-route53
-    container_name: certbot
-    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    volumes:
-    - certs:/etc/letsencrypt
-    - letsencrypt:/var/lib/letsencrypt
-    networks:
-    - hie
-
-  ## TODO: Set up Traefik for AWS DNS properly and remove
-  certbot:
-    image: certbot/dns-route53
-    container_name: certbot
-    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    volumes:
-    - certs:/etc/letsencrypt
-    - letsencrypt:/var/lib/letsencrypt
-    networks:
-    - hie
-
+  # certbot:
+  #   image: certbot/dns-route53
+  #   container_name: certbot
+  #   entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
+  #   environment:
+  #   - AWS_ACCESS_KEY_ID
+  #   - AWS_SECRET_ACCESS_KEY
+  #   volumes:
+  #   - certs:/etc/letsencrypt
+  #   - letsencrypt:/var/lib/letsencrypt
+  #   networks:
+  #   - hie
+    
   ###
   # OpenCR
   ###
@@ -88,7 +74,7 @@ services:
       - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
 
   opencr-fhir:
-    image: hapiproject/hapi:latest
+    image: hapiproject/hapi:v5.7.0
     container_name: opencr-fhir
     hostname: opencr-fhir
     restart: unless-stopped
@@ -101,7 +87,9 @@ services:
       retries: 3
     volumes:
       - cr-data:/data/hapi
-
+      - ./configs/opencr/application.yml:/data/hapi/application.yaml
+    env_file:
+      - ./configs/opencr/.env
   es:
     container_name: es
     hostname: es
@@ -139,12 +127,13 @@ services:
       - ./configs/shr/config_ports.json:/app/config/config_docker.json
       - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
   shr-fhir:
-    image: hapiproject/hapi:latest
+    image: hapiproject/hapi:v5.7.0-tomcat
     container_name: shr-fhir
     hostname: shr-fhir
     restart: unless-stopped
     volumes:
       - shr-data:/data/hapi
+      - ./configs/shr/application.yml:/data/hapi/application.yaml
     networks:
       - hie
     healthcheck:
@@ -152,6 +141,10 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+    ports:
+      - 8090:8080
+    environment:
+      SPRING_CONFIG_LOCATION: file:///data/hapi/application.yaml
 
   ###
   # OpenHIM
@@ -192,14 +185,18 @@ services:
       - 'traefik.http.routers.openhim-core.rule=Host(`core.moh.org.bw`)'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-
+    ports:
+      - 5001:5001
+      - 8091:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   openhim-console:
     container_name: openhim-console
     hostname: openhim-console
     image: jembi/openhim-console:latest
     restart: unless-stopped
     volumes:
-      - ./configs/openhim-console/default.json:/usr/share/nginx/html/config/default.json
+      - ./configs/openhim-console/dev.json:/usr/share/nginx/html/config/default.json
     healthcheck:
       test: "curl -sS http://openhim-console || exit 1"
       interval: 10s
@@ -213,6 +210,8 @@ services:
       - 'traefik.http.routers.openhim-console.entrypoints=web-secure'
     networks:
       - hie
+    ports:
+      - 3333:80
 
   # Loads Default OpenHIM Config
   openhim-config:
@@ -239,7 +238,7 @@ services:
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
     volumes:
       - ./configs/fhir-converter/config_port.json:/app/config.json
-      - /app/src/service-templates
+      - ./configs/fhir-converter/templates:/app/src/service-templates
     networks:
       - hie
     labels:
@@ -248,10 +247,13 @@ services:
       - 'traefik.http.routers.converter.rule=Host(`converter.moh.org.bw`)'
       - 'traefik.http.routers.converter.tls=true'
       - 'traefik.http.routers.converter.entrypoints=web-secure'
+    ports:
+      - 2019:2019
 
   # Kafka
   zookeeper:
     image: "bitnami/zookeeper:latest"
+    container_name: zookeeper
     hostname: zookeeper
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
@@ -259,6 +261,8 @@ services:
     - hie
     volumes:
       - /data
+    restart: unless-stopped
+
   kafka:
     image: "bitnami/kafka:latest"
     hostname: kafka
@@ -277,9 +281,11 @@ services:
     networks:
     - hie
     entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
-  
+    ports:
+      - 9092:9092
+    restart: unless-stopped
   omang-api:
-    image: ghcr.io/b-techbw/omangsvc:v1.3.2
+    image: ghcr.io/b-techbw/omangsvc:${OMANG_SVC_VERSION-latest}
     hostname: omang-api
     container_name: omang-api
     restart: unless-stopped
@@ -307,6 +313,20 @@ services:
       - 1521:1521
     volumes:
       - ./configs/omang/db:/docker-entrypoint-initdb.d
+    networks:
+      - hie
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    hostname: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_MULTIPLE_DATABASES: opencr,shr
+      POSTGRES_PASSWORD: ${PG_PW-postgres}
+    volumes:
+      - /var/lib/postgresql/data/
+      - ./configs/postgres:/docker-entrypoint-initdb.d
     networks:
       - hie
 volumes:
