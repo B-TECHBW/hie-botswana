@@ -74,7 +74,7 @@ services:
       - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
 
   opencr-fhir:
-    image: hapiproject/hapi:latest
+    image: hapiproject/hapi:v5.7.0
     container_name: opencr-fhir
     hostname: opencr-fhir
     restart: unless-stopped
@@ -127,7 +127,7 @@ services:
       - ./configs/shr/config_ports.json:/app/config/config_docker.json
       - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
   shr-fhir:
-    image: hapiproject/hapi:latest
+    image: hapiproject/hapi:v5.7.0-tomcat
     container_name: shr-fhir
     hostname: shr-fhir
     restart: unless-stopped
@@ -143,8 +143,9 @@ services:
       retries: 3
     ports:
       - 8090:8080
-    env_file:
-      - ./configs/shr/.env
+    environment:
+      SPRING_CONFIG_LOCATION: file:///data/hapi/application.yaml
+
   ###
   # OpenHIM
   ###
