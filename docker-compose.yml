@@ -87,7 +87,8 @@ services:
       retries: 3
     volumes:
       - cr-data:/data/hapi
-
+    env_file:
+      - ./configs/opencr/.env
   es:
     container_name: es
     hostname: es
@@ -140,6 +141,8 @@ services:
       retries: 3
     ports:
       - 8090:8080
+    env_file:
+      - ./configs/shr/.env
   ###
   # OpenHIM
   ###
@@ -307,6 +310,20 @@ services:
       - 1521:1521
     volumes:
       - ./configs/omang/db:/docker-entrypoint-initdb.d
+    networks:
+      - hie
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    hostname: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_MULTIPLE_DATABASES: opencr,shr
+      POSTGRES_PASSWORD: ${PG_PW-postgres}
+    volumes:
+      - /var/lib/postgresql/data/
+      - ./configs/postgres:/docker-entrypoint-initdb.d
     networks:
       - hie
 volumes:
