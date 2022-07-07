@@ -62,8 +62,8 @@ services:
     networks:
       - hie
     volumes:
-      - ./configs/opencr/config_port.json:/src/server/config/config_docker.json
-      - ./configs/opencr/mediator_port.json:/src/server/config/mediator.json
+      - ./configs/opencr/config.json:/src/server/config/config_docker.json
+      - ./configs/opencr/mediator.json:/src/server/config/mediator.json
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=hie-botswana_hie'
@@ -123,8 +123,8 @@ services:
     networks:
       - hie
     volumes:
-      - ./configs/shr/config_ports.json:/app/config/config_docker.json
-      - ./configs/shr/mediator_ports.json:/app/config/mediator_docker.json
+      - ./configs/shr/config.json:/app/config/config_docker.json
+      - ./configs/shr/mediator.json:/app/config/mediator_docker.json
     ports:
       - 80:3001
   shr-fhir:
@@ -236,7 +236,7 @@ services:
     restart: unless-stopped
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
     volumes:
-      - ./configs/fhir-converter/config_port.json:/app/config.json
+      - ./configs/fhir-converter/config.json:/app/config.json
       - /app/src/service-templates
     networks:
       - hie
@@ -324,8 +324,6 @@ volumes:
   shr-data:
     driver: local
   cr-data:
-    driver: local
-  nginx-data:
     driver: local
   certs:
     driver: local
