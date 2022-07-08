@@ -129,6 +129,8 @@ services:
       - ./configs/shr/mediator.json:/app/config/mediator_docker.json
     ports:
       - 80:3001
+      - 3001:3001
+      - 3002:3002
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -189,6 +191,9 @@ services:
       - 'traefik.http.routers.openhim-core.middlewares=openhim-core'      
       - 'traefik.http.middlewares.openhim-core.stripprefix.prefixes=/openhim-core'
       - 'traefik.http.middlewares.openhim-core.stripprefix.forceSlash=false'
+    ports:
+      - 5001:5001
+      - 8091:8080
 
   openhim-console:
     container_name: openhim-console
