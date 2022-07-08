@@ -1,16 +1,16 @@
 {
     "urn": "urn:mediator:bw_clientregistry",
-    "version": "0.0.1",
+    "version": "0.1.1",
     "name": "Client Registry",
     "description": "Open Client Registry",
     "config": {
       "fhirServer": {
         "username": "hapi",
         "password": "hapi",
-        "baseURL": "https://opencr-fhir.moh.org.bw/fhir"
+        "baseURL": "http://opencr-fhir:8080/fhir"
       },
       "elastic": {
-        "server": "https://es.moh.org.bw",
+        "server": "http://es:9200",
         "username": "",
         "password": "",
         "max_compilations_rate": "10000/1m",
@@ -99,7 +99,7 @@
       "responseBody": true,
       "name": "Add or Get Resource Data From/To openCR",
       "description": "Add or Get Resource Data From/To openCR",
-      "urlPattern": "/CR/fhir",
+      "urlPattern": "^/CR/fhir.*$",
       "matchContentRegex": null,
       "matchContentXpath": null,
       "matchContentValue": null,
@@ -126,10 +126,10 @@
           "forwardAuthHeader": false,
           "name": "Add/Get Resources",
           "secured": true,
-          "host": "opencr.moh.org.bw",
-          "port": 443,
+          "host": "opencr",
+          "port": 3000,
           "path": "",
-          "pathTransform": "s/CR\/fhir/fhir/g",
+          "pathTransform": "s/CR\\/fhir/fhir/g",
           "primary": true,
           "username": "",
           "password": ""
@@ -151,15 +151,12 @@
     }],
     "endpoints": [{
       "name": "Activate Client Registry",
-      "host": "opencr.moh.org.bw",
-      "path": "/CR/fhir",
-      "port": 443,
+      "host": "opencr",
+      "path": "/",
+      "port": 3000,
       "primary": true,
       "forwardAuthHeader": false,
       "status": "enabled",
       "type": "http"
-    }],
-    "_uptime": 2201.945,
-    "_lastHeartbeat": "2017-12-15T03:47:03.365Z",
-    "_configModifiedTS": "2017-12-15T02:52:49.054Z"
+    }]
   }
