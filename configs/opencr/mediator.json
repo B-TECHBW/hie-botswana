@@ -99,7 +99,7 @@
       "responseBody": true,
       "name": "Add or Get Resource Data From/To openCR",
       "description": "Add or Get Resource Data From/To openCR",
-      "urlPattern": "/CR/fhir",
+      "urlPattern": "^/CR/fhir.*$",
       "matchContentRegex": null,
       "matchContentXpath": null,
       "matchContentValue": null,
@@ -129,7 +129,7 @@
           "host": "opencr",
           "port": 3000,
           "path": "",
-          "pathTransform": "s/CR\/fhir/fhir/g",
+          "pathTransform": "s/CR\\/fhir/fhir/g",
           "primary": true,
           "username": "",
           "password": ""
