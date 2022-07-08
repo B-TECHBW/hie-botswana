@@ -19,6 +19,7 @@ services:
   traefik:
     image: traefik:v2.6.1
     container_name: traefik
+    restart: unless-stopped
     ports:
       - '443:443'
       - '8080:8080'
@@ -187,9 +188,9 @@ services:
       - 'traefik.http.routers.openhim-core.service=openhim-core'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-      - 'traefik.http.routers.openhim-core.rule=PathPrefix(`/openhim-core`)'
+      - 'traefik.http.routers.openhim-core.rule=PathPrefix(`/openhim-ssl`)'
       - 'traefik.http.routers.openhim-core.middlewares=openhim-core'      
-      - 'traefik.http.middlewares.openhim-core.stripprefix.prefixes=/openhim-core'
+      - 'traefik.http.middlewares.openhim-core.stripprefix.prefixes=/openhim-ssl'
       - 'traefik.http.middlewares.openhim-core.stripprefix.forceSlash=false'
     ports:
       - 5001:5001
@@ -260,6 +261,8 @@ services:
   # Kafka
   zookeeper:
     image: "bitnami/zookeeper:latest"
+    container_name: zookeeper
+    restart: unless-stopped
     hostname: zookeeper
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
@@ -271,6 +274,7 @@ services:
     image: "bitnami/kafka:latest"
     hostname: kafka
     container_name: kafka
+    restart: unless-stopped
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
@@ -311,6 +315,7 @@ services:
   oracle-db:
     hostname: oracle-db
     container_name: oracle-db
+    restart: unless-stopped
     image: wnameless/oracle-xe-11g-r2:latest
     environment:
       - ORACLE_ALLOW_REMOTE=true
