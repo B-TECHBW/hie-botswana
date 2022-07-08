@@ -17,6 +17,9 @@
     },
     "register": true
   },
+  "cronJobs": {
+    "patientReprocessing": "0 21 * * *"
+  },
   "fhirServer": {
     "username": "hapi",
     "password": "hapi",
@@ -66,7 +69,7 @@
     }
   },
   "sync": {
-    "lastFHIR2ESSync": "2021-08-10T19:50:14"
+    "lastFHIR2ESSync": "2022-07-08T03:45:49"
   },
   "__comments": {
     "matching.tool": "this tells if the app should use mediator algorithms or elasticsearch algorithms for matching, two options mediator and elasticsearch"
