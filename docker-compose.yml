@@ -188,9 +188,9 @@ services:
       - 'traefik.http.routers.openhim-core.service=openhim-core'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-      - 'traefik.http.routers.openhim-core.rule=PathPrefix(`/openhim-core`)'
+      - 'traefik.http.routers.openhim-core.rule=PathPrefix(`/openhim-ssl`)'
       - 'traefik.http.routers.openhim-core.middlewares=openhim-core'      
-      - 'traefik.http.middlewares.openhim-core.stripprefix.prefixes=/openhim-core'
+      - 'traefik.http.middlewares.openhim-core.stripprefix.prefixes=/openhim-ssl'
       - 'traefik.http.middlewares.openhim-core.stripprefix.forceSlash=false'
     ports:
       - 5001:5001
