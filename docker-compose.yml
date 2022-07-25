@@ -282,7 +282,7 @@ services:
     entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
   
   omang-api:
-    image: ghcr.io/b-techbw/omangsvc:{OMANG_SVC_VERSION-latest}
+    image: ghcr.io/b-techbw/omangsvc:${OMANG_SVC_VERSION-latest}
     hostname: omang-api
     container_name: omang-api
     restart: unless-stopped
