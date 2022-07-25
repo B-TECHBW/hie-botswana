@@ -282,7 +282,7 @@ services:
     entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
   
   omang-api:
-    image: ghcr.io/b-techbw/omangsvc:v1.3.2
+    image: ghcr.io/b-techbw/omangsvc:${OMANG_SVC_VERSION-latest}
     hostname: omang-api
     container_name: omang-api
     restart: unless-stopped
@@ -299,7 +299,6 @@ services:
       - 'traefik.http.routers.omang.middlewares=omang'      
       - 'traefik.http.middlewares.omang.stripprefix.prefixes=/omang'
       - 'traefik.http.middlewares.omang.stripprefix.forceSlash=false'
-
     environment:
       - TZ=GMT
  
@@ -314,6 +313,7 @@ services:
       - 1521:1521
     volumes:
       - ./configs/omang/db:/docker-entrypoint-initdb.d
+
     networks:
       - hie
 volumes:
