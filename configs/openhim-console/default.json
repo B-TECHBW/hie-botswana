@@ -2,7 +2,7 @@
     "version": "1.13.2",
     "minimumCoreVersion": "5.2.0",
     "protocol": "https",
-    "host": "10.171.5.12",
+    "host": "10.0.10.111",
     "hostPath": "/openhim-api",
     "port": "",
     "title": "Botswana HIE Admin Console",

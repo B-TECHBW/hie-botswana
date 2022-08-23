@@ -70,10 +70,7 @@ services:
       - 'traefik.http.routers.opencr.tls=true'
       - 'traefik.http.routers.opencr.entrypoints=web-secure'
       - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
-      - 'traefik.http.routers.opencr.rule=PathPrefix(`/opencr`)'
-      - 'traefik.http.routers.opencr.middlewares=opencr'      
-      - 'traefik.http.middlewares.opencr.stripprefix.prefixes=/opencr'
-      - 'traefik.http.middlewares.opencr.stripprefix.forceSlash=false'
+      - 'traefik.http.routers.opencr.rule=Host(`opencr.hie-pilot.gov.bw`)'
   opencr-fhir:
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
@@ -175,20 +172,21 @@ services:
       - 'traefik.http.routers.openhim-api.service=openhim-api'
       - 'traefik.http.routers.openhim-api.tls=true'
       - 'traefik.http.routers.openhim-api.entrypoints=web-secure'
-      - 'traefik.http.routers.openhim-api.rule=PathPrefix(`/openhim-api`)'
-      - 'traefik.http.routers.openhim-api.middlewares=openhim-api'      
-      - 'traefik.http.middlewares.openhim-api.stripprefix.prefixes=/openhim-api'
-      - 'traefik.http.middlewares.openhim-api.stripprefix.forceSlash=false'
-      
+      - 'traefik.http.routers.openhim-api.rule=Host(`openhim-api.hie-pilot.gov.bw`)'
+
       - 'traefik.http.services.openhim-core.loadbalancer.server.port=5000'
       - 'traefik.http.services.openhim-core.loadbalancer.server.scheme=https'
       - 'traefik.http.routers.openhim-core.service=openhim-core'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-      - 'traefik.http.routers.openhim-core.rule=PathPrefix(`/openhim-core`)'
-      - 'traefik.http.routers.openhim-core.middlewares=openhim-core'      
-      - 'traefik.http.middlewares.openhim-core.stripprefix.prefixes=/openhim-core'
-      - 'traefik.http.middlewares.openhim-core.stripprefix.forceSlash=false'
+      - 'traefik.http.routers.openhim-core.rule=Host(`openhim-ssl.hie-pilot.gov.bw`)'
+
+      - 'traefik.http.services.openhim-core.loadbalancer.server.port=5001'
+      - 'traefik.http.services.openhim-core.loadbalancer.server.scheme=http'
+      - 'traefik.http.routers.openhim-core.service=openhim-core'
+      - 'traefik.http.routers.openhim-core.tls=false'
+      - 'traefik.http.routers.openhim-core.entrypoints=web'
+      - 'traefik.http.routers.openhim-core.rule=Host(`openhim-http.hie-pilot.gov.bw`)'
 
   openhim-console:
     container_name: openhim-console
@@ -207,12 +205,9 @@ services:
       - 'traefik.docker.network=hie-botswana_hie'
       - 'traefik.http.routers.openhim-console.tls=true'
       - 'traefik.http.routers.openhim-console.entrypoints=web-secure'
-      - 'traefik.http.routers.openhim-console.rule=PathPrefix(`/openhim`)'
-      - 'traefik.http.routers.openhim-console.middlewares=openhim-console'      
-      - 'traefik.http.middlewares.openhim-console.stripprefix.prefixes=/openhim'
-      - 'traefik.http.middlewares.openhim-console.stripprefix.forceSlash=false'
+      - 'traefik.http.routers.openhim-console.rule=Host(`hie-pilot.gov.bw`)'
     networks:
-      - hie
+      - hie~
 
   # Loads Default OpenHIM Config
   openhim-config:
