@@ -132,7 +132,6 @@ services:
       - ./configs/shr/config.json:/app/config/config_docker.json
       - ./configs/shr/mediator.json:/app/config/mediator_docker.json
     ports:
-      - 80:3001
       - 3001:3001
       - 3002:3002
   shr-fhir:
@@ -188,10 +187,7 @@ services:
       - 'traefik.http.routers.openhim-core.service=openhim-core'
       - 'traefik.http.routers.openhim-core.tls=true'
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
-      - 'traefik.http.routers.openhim-core.rule=PathPrefix(`/openhim-ssl`)'
-      - 'traefik.http.routers.openhim-core.middlewares=openhim-core'      
-      - 'traefik.http.middlewares.openhim-core.stripprefix.prefixes=/openhim-ssl'
-      - 'traefik.http.middlewares.openhim-core.stripprefix.forceSlash=false'
+      - 'traefik.http.routers.openhim-core.rule=Host(`openhim.moh.org.bw`)'
     ports:
       - 5001:5001
       - 8091:8080
