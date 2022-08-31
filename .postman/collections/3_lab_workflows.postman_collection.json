@@ -359,7 +359,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{openhim-url}}/72f/convert/fhir/ADT_in.hbs",
+							"raw": "{{openhim-url}}/72f/convert/fhir/ADT_A04_TO_IPMS.hbs",
 							"host": [
 								"{{openhim-url}}"
 							],
