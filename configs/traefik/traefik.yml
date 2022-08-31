@@ -1,7 +1,7 @@
 log:
   level: DEBUG
-# serversTransport:
-#   insecureSkipVerify: true
+serversTransport:
+  insecureSkipVerify: true
 entryPoints:
   web:
     address: ":80"

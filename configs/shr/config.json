@@ -4,10 +4,10 @@
     "mllpPort": 3001
   },
   "mllp": {
-    "targetIp": "10.175.5.69",
-    "targetPort": 3001,
-    "targetAdtPort": 3001,
-    "targetOrmPort": 3002	
+    "targetIp": "localhost",
+    "targetPort": 2100,
+    "targetAdtPort": 2100,
+    "targetOrmPort": 2100	
   },
   "mediator": {
     "api": {
