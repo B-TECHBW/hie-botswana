@@ -17,36 +17,25 @@ services:
   # reverse proxy
   ###
   traefik:
-    image: traefik:v2.6.1
+    image: traefik:v2.8.3
     container_name: traefik
+    restart: unless-stopped
     ports:
       - '443:443'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./configs/traefik/traefik.yml:/etc/traefik/traefik.yml
-      # - ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
-      # - certs:/etc/certs
+      - ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
+      - ./certs:/etc/certs
     networks:
       - hie
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    - AWS_HOSTED_ZONE_ID
-
-  ## TODO: Set up Traefik for AWS DNS properly and remove
-  certbot:
-    image: certbot/dns-route53
-    container_name: certbot
-    entrypoint: "certbot certonly -n --agree-tos --email pmanko@uw.edu -d 'moh.org.bw' -d '*.moh.org.bw' --dns-route53 --preferred-challenges=dns"
-    environment:
-    - AWS_ACCESS_KEY_ID
-    - AWS_SECRET_ACCESS_KEY
-    volumes:
-    - certs:/etc/letsencrypt
-    - letsencrypt:/var/lib/letsencrypt
-    networks:
-    - hie
-
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - "traefik.http.routers.api.rule=Host(`traefik.hie-pilot.gov.bw`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - 'traefik.http.routers.api.tls=true'
+      - 'traefik.http.routers.api.entrypoints=web-secure'
   ###
   # OpenCR
   ###
@@ -309,6 +298,7 @@ services:
   oracle-db:
     hostname: oracle-db
     container_name: oracle-db
+    restart: unless-stopped
     image: wnameless/oracle-xe-11g-r2:latest
     environment:
       - ORACLE_ALLOW_REMOTE=true
