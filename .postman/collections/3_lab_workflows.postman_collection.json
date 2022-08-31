@@ -359,7 +359,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{openhim-url}}/72f/convert/fhir/ADT_in.hbs",
+							"raw": "{{openhim-url}}/72f/convert/fhir/ADT_A04_TO_IPMS.hbs",
 							"host": [
 								"{{openhim-url}}"
 							],
@@ -367,7 +367,7 @@
 								"72f",
 								"convert",
 								"fhir",
-								"ADT_in.hbs"
+								"ADT_A04_TO_IPMS.hbs"
 							]
 						}
 					},
@@ -422,7 +422,7 @@
 			]
 		},
 		{
-			"name": "04 SHR --> IPMS: ORM",
+			"name": "06 SHR --> IPMS: ORM",
 			"item": [
 				{
 					"name": "Send Lab Order To IPMS (ORM)",
@@ -459,7 +459,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{openhim-url}}/72f/convert/fhir/OBR.hbs",
+							"raw": "{{openhim-url}}/72f/convert/fhir/ORM_O01_TO_IPMS.hbs",
 							"host": [
 								"{{openhim-url}}"
 							],
@@ -467,7 +467,7 @@
 								"72f",
 								"convert",
 								"fhir",
-								"OBR.hbs"
+								"ORM_O01_TO_IPMS.hbs"
 							]
 						}
 					},

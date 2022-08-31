@@ -13,7 +13,8 @@ entryPoints:
   web-secure:
     address: :443
 api:
-  insecure: true
+  dashboard: true
+  insecure: false
 providers:
   file:
     watch: true
