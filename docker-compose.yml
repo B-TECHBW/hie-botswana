@@ -238,7 +238,7 @@ services:
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
     volumes:
       - ./configs/fhir-converter/config.json:/app/config.json
-      - /app/src/service-templates
+      - ./configs/fhir-converter/templates:/app/data/service-templates
     networks:
       - hie
     labels:
@@ -246,16 +246,20 @@ services:
       - 'traefik.docker.network=hie-botswana_hie'
       - 'traefik.http.routers.converter.tls=true'
       - 'traefik.http.routers.converter.entrypoints=web-secure'
-      - 'traefik.http.routers.converter.rule=PathPrefix(`/converter`)'
+      - 'traefik.http.routers.converter.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/converter`)'
       - 'traefik.http.routers.converter.middlewares=converter'      
       - 'traefik.http.middlewares.converter.stripprefix.prefixes=/converter'
       - 'traefik.http.middlewares.converter.stripprefix.forceSlash=false'
+      - 'traefik.http.services.converter.loadbalancer.server.port=2019'
+      - 'traefik.http.services.converter.loadbalancer.server.scheme=http'
+      - 'traefik.http.routers.converters.service=converter'
+
     ports:
-      - 8093:80
+      - 8093:2019
   # Kafka
   zookeeper:
     image: "bitnami/zookeeper:latest"
-    container_name: zookeper
+    container_name: zookeeper
     restart: unless-stopped
     hostname: zookeeper
     environment:

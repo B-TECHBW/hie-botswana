@@ -1,0 +1,7 @@
+{{#with msg.fhir}}
+MSH|^~\&|DM||||{{date}}||ADT^A04|{{controlId}}|D|2.4|||AL|NE
+EVN||{{date}}|||ZZHGGMMO^Healthpost^Mmopane|{{date}}
+PID|1||NEW||{{patientFamilyName}}^{{patientFirstName}}^^^^^F||{{patientDob}}|{{patientSex}}||CT|{{patientStreetAddress}}^^{{patientCity}}^{{patientProvince}}^{{patientPostalCode}}||{{patientHomePhoneNumber}}^^^{{patientEmail}}|{{patientBusinessPhoneNumber}}||{{patientMaritalStatus}}|AC||{{patientOmang}}
+PV1|1|O|HGGMMO||||ZZHGGMMO^Healthpost^Mmopane^^^^^^^^^^XX|||||||||||POV||U|||||||||||||||||||GGC||REG|||{{date}}
+ROL|1|AD|AT|ZZHGGMMO^Healthpost^Mmopane
+{{/with}}

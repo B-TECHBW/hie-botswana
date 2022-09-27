@@ -1,0 +1,7 @@
+{{#with msg.fhir}}
+MSH|^~&|PIMS||IPMS||{{date}}||ORM^O01|{{controlId}}|D|2.4|||AL|NE
+PID|1||{{patientId}}||{{patientLastName}}^{{patientFirstName}}^^^^^L||{{patientDoB}}|{{sex}}|||||||||||{{patientOmang}}
+ORC|NW|{{labOrderId}}^LAB|||||^^^^^R||{{labOrderDatetime}}|||
+OBR|1| {{labOrderId}}^LAB||{{labOrderType}}|R||{{labOrderDatetime}}|||||||||||
+{{/with}}
+
