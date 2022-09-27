@@ -71,6 +71,9 @@ services:
     volumes:
       - ./configs/opencr/config.json:/src/server/config/config_docker.json
       - ./configs/opencr/mediator.json:/src/server/config/mediator.json
+      - ./configs/opencr/decisionRules.json:/src/server/config/decisionRules.json
+      - ./configs/opencr/PatientRelationship.json:/src/resources/Relationships/PatientRelationship.json
+
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=hie-botswana_hie'
@@ -78,6 +81,8 @@ services:
       - 'traefik.http.routers.opencr.entrypoints=web-secure'
       - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
       - 'traefik.http.routers.opencr.rule=Host(`opencr.moh.org.bw`)'
+    ports:
+      - 3000:3000
   opencr-fhir:
     image: hapiproject/hapi:latest
     container_name: opencr-fhir
@@ -120,6 +125,8 @@ services:
   # SHR
   ###
   shr:
+    profiles:
+      - debug
     container_name: shr
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:${SHR_VERSION-latest}
@@ -132,6 +139,7 @@ services:
       - ./configs/shr/config.json:/app/config/config_docker.json
       - ./configs/shr/mediator.json:/app/config/mediator_docker.json
     ports:
+      - 4000:3000
       - 3001:3001
       - 3002:3002
   shr-fhir:
@@ -148,6 +156,8 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+    ports:
+      - 8099:8080
 
   ###
   # OpenHIM
@@ -189,6 +199,7 @@ services:
       - 'traefik.http.routers.openhim-core.entrypoints=web-secure'
       - 'traefik.http.routers.openhim-core.rule=Host(`openhim.moh.org.bw`)'
     ports:
+      - 5000:5000
       - 5001:5001
       - 8091:8080
 
@@ -212,6 +223,8 @@ services:
       - 'traefik.http.routers.openhim-console.rule=Host(`moh.org.bw`)'
     networks:
       - hie
+    ports:
+      - 4001:80
 
   # Loads Default OpenHIM Config
   openhim-config:
@@ -238,7 +251,7 @@ services:
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
     volumes:
       - ./configs/fhir-converter/config.json:/app/config.json
-      - /app/src/service-templates
+      - ./configs/fhir-converter/templates:/app/data/service-templates
     networks:
       - hie
     labels:
@@ -247,7 +260,8 @@ services:
       - 'traefik.http.routers.converter.tls=true'
       - 'traefik.http.routers.converter.entrypoints=web-secure'
       - 'traefik.http.routers.converter.rule=Host(`converter.moh.org.bw`)'
-
+    ports:
+      - 4002:2019
   # Kafka
   zookeeper:
     image: "bitnami/zookeeper:latest"

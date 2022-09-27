@@ -1,0 +1,81 @@
+{
+    "__comments": {
+        "path": "Its a fhir path, for syntax refer to https://www.hl7.org/fhir/fhirpath.html",
+        "matchingType": "Must be specified, it can either",
+        "threshold": {
+            "levenshtein": "Lower the number, the closer the match, 0 being exact match, max threshold is 2",
+            "jaro-winkler": "number between 0 and 1, where 0 for no match and 1 for exact match"
+        },
+        "nullHandling": {
+            "description": "this option tells openCR what to do when a field is empty, when set at the top level of the rule then it will apply to all fields, if set at the respective field then it will apply for that particular field",
+            "values": "either conservative, moderate or greedy"
+        },
+        "nullHandlingBothFields": {
+            "description": "this option tells openCR what to do when both fields are empty and When this is set, then nullHandling applies to when only 1 of the fields is null, when set at the top level of the rule then it will apply to all fields, if set at the respective field then it will apply for that particular field",
+            "values": "either conservative, moderate or greedy"
+        },
+        "supported_algorithms": {
+            "elasticsearch": [
+                "https://github.com/intrahealth/similarity-scoring"
+            ]
+        }
+    },
+    "rules": [
+        {
+            "matchingType": "deterministic",
+            "fields": {
+                "nationalid": {
+                    "algorithm": "jaro-winkler-similarity",
+                    "threshold": 1,
+                    "fhirpath": "identifier.where(system='http://moh.bw.org/ext/identifier/omang').value",
+                    "null_handling": "conservative",
+                    "null_handling_both": "conservative",
+                    "espath": "nationalid"
+                }
+            },
+            "autoMatchThreshold": 2
+        },
+        {
+            "matchingType": "deterministic",
+            "fields": {
+                "given": {
+                    "algorithm": "jaro-winkler-similarity",
+                    "threshold": 0.8,
+                    "fhirpath": "name.where(use='official').given",
+                    "null_handling": "moderate",
+                    "null_handling_both": "moderate",
+                    "espath": "given"
+                },
+                "family": {
+                    "algorithm": "jaro-winkler-similarity",
+                    "threshold": 0.9,
+                    "fhirpath": "name.where(use='official').family",
+                    "null_handling": "moderate",
+                    "null_handling_both": "moderate",
+                    "espath": "family"
+                },
+                "birthdate": {
+                    "algorithm": "exact",
+                    "fhirpath": "birthDate",
+                    "null_handling": "moderate",
+                    "null_handling_both": "moderate",
+                    "espath": "birthDate"
+                },
+                "artnumber": {
+                    "algorithm": "exact",
+                    "fhirpath": "identifier.where(system='http://moh.bw.org/ext/identifier/pi').value",
+                    "null_handling": "moderate",
+                    "null_handling_both": "moderate",
+                    "espath": "artnumber"
+                }
+            },
+            "potentialMatchThreshold": 3,
+            "filters": {
+                "gender": {
+                    "fhirpath": "gender",
+                    "espath": "gender"
+                }
+            }
+        }
+    ]
+}

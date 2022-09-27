@@ -44,32 +44,40 @@
   },
   "clients": [
     {
-      "id": "lis",
-      "displayName": "Lab Info System"
+      "id": "tester",
+      "displayName": "PIMS"
+    },
+    {
+      "id": "shr",
+      "displayName": "SHR"
+    },
+    {
+      "id": "postman",
+      "displayName": "Postman"
     }
   ],
   "systems": {
     "CRBaseURI": "http://openclientregistry.org/fhir",
     "internalid": {
       "uri": [
-        "http://moh.bw.org/ext/identifier/omang"
+        "http://moh.bw.org/ext/identifier/mr"
       ],
       "displayName": "Internal ID"
     },
     "nationalid": {
-      "uri": "http://health.go.ug/cr/natioanlid",
-      "displayName": "National ID"
+      "uri": "http://moh.bw.org/ext/identifier/omang",
+      "displayName": "National ID - Omang"
     },
     "artnumber": {
-      "uri": "http://health.go.ug/cr/artnumber",
-      "displayName": "ART Number"
+      "uri": "http://moh.bw.org/ext/identifier/pi",
+      "displayName": "Patient Identifier"
     },
     "brokenMatch": {
       "uri": "http://clientregistry.org/brokenMatch"
     }
   },
   "sync": {
-    "lastFHIR2ESSync": "2022-08-31T13:16:51"
+    "lastFHIR2ESSync": "2022-09-27T17:46:24"
   },
   "__comments": {
     "matching.tool": "this tells if the app should use mediator algorithms or elasticsearch algorithms for matching, two options mediator and elasticsearch"
