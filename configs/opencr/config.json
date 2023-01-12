@@ -48,23 +48,24 @@
       "displayName": "PIMS"
     },
     {
-      "id": "shr",
-      "displayName": "SHR"
-    },
-    {
       "id": "postman",
       "displayName": "Postman"
     },
     {
-      "id": "shr",
+      "id": "shr-client",
       "displayName": "Shared Health Record"
+    },
+    {
+      "id": "omang-api",
+      "displayName": "Omang Service"
     }
   ],
   "systems": {
     "CRBaseURI": "http://openclientregistry.org/fhir",
     "internalid": {
       "uri": [
-        "http://moh.bw.org/ext/identifier/mr"
+        "http://moh.bw.org/ext/identifier/mr",
+        "http://omang.bw.org/ext/identifier/internalid"
       ],
       "displayName": "Internal ID"
     },
@@ -81,7 +82,7 @@
     }
   },
   "sync": {
-    "lastFHIR2ESSync": "2022-09-22T17:44:46"
+    "lastFHIR2ESSync": "2023-01-06T03:12:10"
   },
   "__comments": {
     "matching.tool": "this tells if the app should use mediator algorithms or elasticsearch algorithms for matching, two options mediator and elasticsearch"

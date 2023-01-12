@@ -63,8 +63,10 @@ services:
       - 'traefik.http.routers.opencr.entrypoints=web-secure'
       - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
       - 'traefik.http.routers.opencr.rule=Host(`opencr.hie-pilot.gov.bw`)'
+    ports:
+      - 8087:3000
   opencr-fhir:
-    image: hapiproject/hapi:latest
+    image: hapiproject/hapi:v5.1.0
     container_name: opencr-fhir
     hostname: opencr-fhir
     restart: unless-stopped
@@ -120,7 +122,7 @@ services:
       - ./configs/shr/mediator.json:/app/config/mediator_docker.json
     ports:
       - 3001:3001
-      - 3002:3002
+      - 3002:3001
   shr-fhir:
     image: hapiproject/hapi:latest
     container_name: shr-fhir
@@ -299,7 +301,7 @@ services:
     entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
   
   omang-api:
-    image: ghcr.io/b-techbw/omangsvc:${OMANG_SVC_VERSION-latest}
+    image: ghcr.io/i-tech-uw/omangsvc:${OMANG_SVC_VERSION-latest}
     hostname: omang-api
     container_name: omang-api
     restart: unless-stopped
@@ -312,7 +314,11 @@ services:
       - 'traefik.docker.network=hie-botswana_hie'
       - 'traefik.http.routers.omang.tls=true'
       - 'traefik.http.routers.omang.entrypoints=web-secure'
-      - 'traefik.http.routers.omang.rule=Host(`omang.moh.org.bw`)'
+      - 'traefik.http.routers.omang.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/omang`)'
+      - 'traefik.http.routers.omang.middlewares=omang'      
+      - 'traefik.http.middlewares.omang.stripprefix.prefixes=/omang'
+      - 'traefik.http.middlewares.omang.stripprefix.forceSlash=false'
+
     environment:
       - TZ=GMT
  
