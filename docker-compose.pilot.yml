@@ -1,0 +1,357 @@
+version: '3.8'
+
+## Port Assignments:
+##  See .env file
+
+## Container debugging:
+# 1. append the following lines to desired container
+# 2. boot up the container using `docker-compose up -d`
+# 3 run `docker exec -it <container-name> bash` to start interactive shell
+#
+#    tty: true
+#    stdin_open: true
+#    entrypoint: bash
+
+services:
+  ###
+  # reverse proxy
+  ###
+  traefik:
+    image: traefik:v2.8.3
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./configs/traefik/traefik.yml:/etc/traefik/traefik.yml
+      - ./configs/traefik/certs.yml:/etc/traefik/dynamic_conf/certs.yml
+      - ./certs:/etc/certs
+    networks:
+      - hie
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - "traefik.http.routers.api.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/dashboard`) || PathPrefix(`/api`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - 'traefik.http.routers.api.tls=true'
+      - 'traefik.http.routers.api.entrypoints=web-secure'
+  ###
+  # OpenCR
+  ###
+  opencr:
+    container_name: opencr
+    hostname: opencr
+    image: intrahealth/opencr:latest #76efe76
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=docker
+      - HAPI_FHIR_URL=http://opencr-fhir:8080/fhir/metadata
+    networks:
+      - hie
+    volumes:
+      - ./configs/opencr/config.json:/src/server/config/config_docker.json
+      - ./configs/opencr/mediator.json:/src/server/config/mediator.json
+      - ./configs/opencr/decisionRules.json:/src/server/config/decisionRules.json
+      - ./configs/opencr/PatientRelationship.json:/src/resources/Relationships/PatientRelationship.json
+
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.opencr.tls=true'
+      - 'traefik.http.routers.opencr.entrypoints=web-secure'
+      - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
+      - 'traefik.http.routers.opencr.rule=Host(`opencr.hie-pilot.gov.bw`)'
+    ports:
+      - 8087:3000
+  opencr-fhir:
+    image: hapiproject/hapi:v5.1.0
+    container_name: opencr-fhir
+    hostname: opencr-fhir
+    restart: unless-stopped
+    networks:
+      - hie
+    healthcheck:
+      test: "curl -sS http://opencr-fhir:8080/fhir/metadata || exit 1"
+      interval: 90s
+      timeout: 30s
+      retries: 3
+    ports:
+      - 8082:8080
+    volumes:
+      - cr-data:/data/hapi
+
+  es:
+    container_name: es
+    hostname: es
+    image: intrahealth/elasticsearch:latest
+    restart: unless-stopped
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es:/usr/share/elasticsearch/data
+    networks:
+      - hie
+    healthcheck:
+      test: "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"
+
+  ###
+  # SHR
+  ###
+  shr:
+    profiles:
+      - debug
+    container_name: shr
+    hostname: shr
+    image: ghcr.io/i-tech-uw/shared-health-record:${SHR_VERSION-latest}
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=docker
+    networks:
+      - hie
+    volumes:
+      - ./configs/shr/config.json:/app/config/config_docker.json
+      - ./configs/shr/mediator.json:/app/config/mediator_docker.json
+    ports:
+      - 3001:3001
+      - 3002:3001
+  shr-fhir:
+    image: hapiproject/hapi:latest
+    container_name: shr-fhir
+    hostname: shr-fhir
+    restart: unless-stopped
+    volumes:
+      - shr-data:/data/hapi
+    networks:
+      - hie
+    healthcheck:
+      test: "curl -sS http://shr-fhir:8080/fhir/metadata || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - 8099:8080
+
+  ###
+  # OpenHIM
+  ###
+  openhim-core:
+    container_name: openhim-core
+    hostname: openhim-core
+    image: jembi/openhim-core:latest
+    restart: unless-stopped
+    environment:
+      mongo_url: "mongodb://mongo-db/openhim"
+      mongo_atnaUrl: "mongodb://mongo-db/openhim"
+      NODE_ENV: "development"
+    healthcheck:
+      test: "node /healthcheck.js"
+      interval: 20s
+      timeout: 20s
+      retries: 2
+    networks:
+      - hie
+    volumes:
+      - ./configs/openhim/healthcheck.js:/healthcheck.js
+    #   - ./configs/openhim/config.json:/app/config/default.json
+    ports:
+       - 8090:8080
+       - 8081:5000
+       - 8080:5001
+
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      
+      - 'traefik.http.services.openhim-api.loadbalancer.server.port=8080'
+      - 'traefik.http.services.openhim-api.loadbalancer.server.scheme=https'
+      - 'traefik.http.routers.openhim-api.service=openhim-api'
+      - 'traefik.http.routers.openhim-api.tls=true'
+      - 'traefik.http.routers.openhim-api.entrypoints=web-secure'
+      - 'traefik.http.routers.openhim-api.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/openhim-api`)'
+      - 'traefik.http.routers.openhim-api.middlewares=openhim-api'      
+      - 'traefik.http.middlewares.openhim-api.stripprefix.prefixes=/openhim-api'
+      - 'traefik.http.middlewares.openhim-api.stripprefix.forceSlash=false'
+
+
+      - 'traefik.http.services.openhim-ssl.loadbalancer.server.port=5000'
+      - 'traefik.http.services.openhim-ssl.loadbalancer.server.scheme=https'
+      - 'traefik.http.routers.openhim-ssl.service=openhim-ssl'
+      - 'traefik.http.routers.openhim-ssl.tls=true'
+      - 'traefik.http.routers.openhim-ssl.entrypoints=web-secure'
+      - 'traefik.http.routers.openhim-ssl.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/openhim-ssl`)'
+      - 'traefik.http.routers.openhim-ssl.middlewares=openhim-ssl'      
+      - 'traefik.http.middlewares.openhim-ssl.stripprefix.prefixes=/openhim-ssl'
+      - 'traefik.http.middlewares.openhim-ssl.stripprefix.forceSlash=false'
+
+      - 'traefik.http.services.openhim-http.loadbalancer.server.port=5001'
+      - 'traefik.http.services.openhim-http.loadbalancer.server.scheme=http'
+      - 'traefik.http.routers.openhim-http.service=openhim-http'
+      - 'traefik.http.routers.openhim-http.tls=false'
+      - 'traefik.http.routers.openhim-http.entrypoints=web'
+      - 'traefik.http.routers.openhim-http.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/openhim-http`)'
+      - 'traefik.http.routers.openhim-http.middlewares=openhim-http'      
+      - 'traefik.http.middlewares.openhim-http.stripprefix.prefixes=/openhim-http'
+      - 'traefik.http.middlewares.openhim-http.stripprefix.forceSlash=false'
+  
+  openhim-console:
+    container_name: openhim-console
+    hostname: openhim-console
+    image: jembi/openhim-console:latest
+    restart: unless-stopped
+    volumes:
+      - ./configs/openhim-console/default.json:/usr/share/nginx/html/config/default.json
+    healthcheck:
+      test: "curl -sS http://openhim-console || exit 1"
+      interval: 10s
+      timeout: 60s
+      retries: 3
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.openhim-console.tls=true'
+      - 'traefik.http.routers.openhim-console.entrypoints=web-secure'
+      - 'traefik.http.routers.openhim-console.rule=Host(`hie-pilot.gov.bw`)'
+    networks:
+      - hie
+    ports:
+      - 4001:80
+
+  # Loads Default OpenHIM Config
+  openhim-config:
+    container_name: openhim-config
+    image: ghcr.io/i-tech-uw/openhim-config:v0.0.0
+    volumes:
+      - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
+    networks:
+      - hie
+
+  mongo-db:
+    container_name: mongo-db
+    image: mongo:3.4
+    volumes:
+      - "mongo-data:/data/db"
+    restart: unless-stopped
+    networks:
+      - hie
+
+  fhir-converter:
+    container_name: fhir-converter
+    hostname: fhir-converter
+    restart: unless-stopped
+    image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
+    volumes:
+      - ./configs/fhir-converter/config.json:/app/config.json
+      - ./configs/fhir-converter/templates:/app/data/service-templates
+    networks:
+      - hie
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.converter.tls=true'
+      - 'traefik.http.routers.converter.entrypoints=web-secure'
+      - 'traefik.http.routers.converter.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/converter`)'
+      - 'traefik.http.routers.converter.middlewares=converter'      
+      - 'traefik.http.middlewares.converter.stripprefix.prefixes=/converter'
+      - 'traefik.http.middlewares.converter.stripprefix.forceSlash=false'
+      - 'traefik.http.services.converter.loadbalancer.server.port=2019'
+      - 'traefik.http.services.converter.loadbalancer.server.scheme=http'
+      - 'traefik.http.routers.converters.service=converter'
+
+    ports:
+      - 8093:2019
+  # Kafka
+  zookeeper:
+    image: "bitnami/zookeeper:latest"
+    container_name: zookeeper
+    restart: unless-stopped
+    hostname: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+    - hie
+    volumes:
+      - /data
+  kafka:
+    restart: unless-stopped
+    image: "bitnami/kafka:latest"
+    hostname: kafka
+    container_name: kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    volumes:
+      - kafka-data:/bitnami/kafka
+    depends_on:
+      - zookeeper
+    networks:
+    - hie
+    entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
+  
+  omang-api:
+    image: ghcr.io/i-tech-uw/omangsvc:${OMANG_SVC_VERSION-latest}
+    hostname: omang-api
+    container_name: omang-api
+    restart: unless-stopped
+    volumes:
+      - ./configs/omang/appsettings.json:/app/appsettings.json
+    networks:
+      - hie
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.omang.tls=true'
+      - 'traefik.http.routers.omang.entrypoints=web-secure'
+      - 'traefik.http.routers.omang.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/omang`)'
+      - 'traefik.http.routers.omang.middlewares=omang'      
+      - 'traefik.http.middlewares.omang.stripprefix.prefixes=/omang'
+      - 'traefik.http.middlewares.omang.stripprefix.forceSlash=false'
+
+    environment:
+      - TZ=GMT
+ 
+  oracle-db:
+    hostname: oracle-db
+    container_name: oracle-db
+    restart: unless-stopped
+    image: wnameless/oracle-xe-11g-r2:latest
+    environment:
+      - ORACLE_ALLOW_REMOTE=true
+      - TZ=GMT
+    ports:
+      - 1521:1521
+    volumes:
+      - ./configs/omang/db:/docker-entrypoint-initdb.d
+    networks:
+      - hie
+volumes:
+  es:
+    driver: local
+  mongo-data:
+    driver: local
+  sqldata:
+    driver: local
+  shr-data:
+    driver: local
+  cr-data:
+    driver: local
+  certs:
+    driver: local
+  kafka-data:
+    driver: local
+  letsencrypt:
+    driver: local
+networks:
+  hie:
