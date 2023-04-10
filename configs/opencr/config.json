@@ -65,7 +65,8 @@
     "internalid": {
       "uri": [
         "http://moh.bw.org/ext/identifier/mr",
-        "http://omang.bw.org/ext/identifier/internalid"
+        "http://omang.bw.org/ext/identifier/internalid",
+        "http://openelis-global.org/pat_nationalId"
       ],
       "displayName": "Internal ID"
     },
@@ -82,7 +83,7 @@
     }
   },
   "sync": {
-    "lastFHIR2ESSync": "2023-01-06T03:12:10"
+    "lastFHIR2ESSync": "2023-04-04T22:03:09"
   },
   "__comments": {
     "matching.tool": "this tells if the app should use mediator algorithms or elasticsearch algorithms for matching, two options mediator and elasticsearch"

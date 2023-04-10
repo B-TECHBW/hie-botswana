@@ -1,43 +1,49 @@
 {
-    "app": {
-      "port": 3000,
-      "mllpPort": 3001
+  "app": {
+    "port": 3000,
+    "mllpPort": 3001
+  },
+  "mediator": {
+    "api": {
+      "username": "root@openhim.org",
+      "password": "openhim",
+      "apiURL": "https://openhim-core:8080",
+      "trustSelfSigned": true,
+      "urn": "urn:mediator:shared-health-record"
     },
-    "mediator": {
-      "api": {
-        "username": "root@openhim.org",
-        "password": "openhim",
-        "apiURL": "https://openhim-core:8080",
-        "trustSelfSigned": true,
-        "urn": "urn:mediator:bw-shared-health-record"
-      },
-      "client": {
-        "username": "shr-client",
-        "password": "shr-client"
-      }
-    },
-    "fhirServer": {
-      "baseURL": "http://shr-fhir:8080/fhir"
-    },
-    "clientRegistryUrl": "http://openhim-core:5001/CR/fhir",
-    "fhirConverterUrl": "http://openhim-core:5001/72f",
-    "taskRunner": {
-      "brokers": [
-        "kafka:9092"
-      ]    },
-    "bwConfig": {
-      "pimsSystemUrl": "https://api.openconceptlab.org/orgs/B-TECHBW/sources/PIMS-LAB-TEST-DICT/",
-      "omangSystemUrl": "http://moh.bw.org/ext/identifier/omang",
-      "oclUrl": "https://api.openconceptlab.org",
-      "requestTimeout": 60000,
-      "toIpmsAdtTemplate": "ADT_A04_TO_IPMS.hbs",
-      "fromIpmsAdtTemplate": "ADT_A04_FROM_IPMS.hbs",
-      "toIpmsOrmTemplate": "ORM_O01_TO_IPMS.hbs",
-      "fromIpmsOruTemplate": "ORU_R01_FROM_IPMS.hbs",
-      "mllp": {
-        "targetIp": "10.175.5.69",
-        "targetAdtPort": 3001,
-        "targetOrmPort": 3002
-      }
+    "client": {
+      "username": "shr-client",
+      "password": "shr-client"
+    }
+  },
+  "fhirServer": {
+    "baseURL": "http://shr-fhir:8080/fhir",
+    "username": "shr",
+    "password": "shr"
+  },
+  "clientRegistryUrl": "http://openhim-core:5001/CR/fhir",
+  "fhirConverterUrl": "http://openhim-core:5001/72f",
+  "taskRunner": {
+    "brokers": [
+      "kafka:9092"
+    ]
+  },
+  "bwConfig": {
+    "pimsSystemUrl": "https://api.openconceptlab.org/orgs/I-TECH-UW/sources/PIMSLAB/",
+    "ipmsSystemUrl": "https://api.openconceptlab.org/orgs/I-TECH-UW/sources/IPMSLAB/",
+    "cielSystemUrl": "https://openconceptlab.org/orgs/CIEL/sources/CIEL",
+    "loincSystemUrl": "https://api.openconceptlab.org/orgs/Regenstrief/sources/LOINC/",
+    "omangSystemUrl": "http://moh.bw.org/ext/identifier/omang",
+    "oclUrl": "https://api.openconceptlab.org",
+    "requestTimeout": 60000,
+    "toIpmsAdtTemplate": "ADT_A04_TO_IPMS.hbs",
+    "fromIpmsAdtTemplate": "ADT_A04_FROM_IPMS.hbs",
+    "toIpmsOrmTemplate": "ORM_O01_TO_IPMS.hbs",
+    "fromIpmsOruTemplate": "ORU_R01_FROM_IPMS.hbs",
+    "mllp": {
+      "targetIp": "10.175.5.69",
+      "targetAdtPort": 3001,
+      "targetOrmPort": 3002
     }
   }
+}
