@@ -44,32 +44,46 @@
   },
   "clients": [
     {
-      "id": "lis",
-      "displayName": "Lab Info System"
+      "id": "tester",
+      "displayName": "PIMS"
+    },
+    {
+      "id": "postman",
+      "displayName": "Postman"
+    },
+    {
+      "id": "shr-client",
+      "displayName": "Shared Health Record"
+    },
+    {
+      "id": "omang-api",
+      "displayName": "Omang Service"
     }
   ],
   "systems": {
     "CRBaseURI": "http://openclientregistry.org/fhir",
     "internalid": {
       "uri": [
-        "http://moh.bw.org/ext/identifier/omang"
+        "http://moh.bw.org/ext/identifier/mr",
+        "http://omang.bw.org/ext/identifier/internalid",
+        "http://openelis-global.org/pat_nationalId"
       ],
       "displayName": "Internal ID"
     },
     "nationalid": {
-      "uri": "http://health.go.ug/cr/natioanlid",
-      "displayName": "National ID"
+      "uri": "http://moh.bw.org/ext/identifier/omang",
+      "displayName": "National ID - OMANG"
     },
     "artnumber": {
-      "uri": "http://health.go.ug/cr/artnumber",
-      "displayName": "ART Number"
+      "uri": "http://moh.bw.org/ext/identifier/pi",
+      "displayName": "Patient Identifier"
     },
     "brokenMatch": {
       "uri": "http://clientregistry.org/brokenMatch"
     }
   },
   "sync": {
-    "lastFHIR2ESSync": "2022-08-31T19:24:26"
+    "lastFHIR2ESSync": "2023-04-04T22:03:09"
   },
   "__comments": {
     "matching.tool": "this tells if the app should use mediator algorithms or elasticsearch algorithms for matching, two options mediator and elasticsearch"

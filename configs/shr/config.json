@@ -9,15 +9,17 @@
       "password": "openhim",
       "apiURL": "https://openhim-core:8080",
       "trustSelfSigned": true,
-      "urn": "urn:mediator:bw-shared-health-record"
+      "urn": "urn:mediator:shared-health-record"
     },
     "client": {
-      "id": "shr-client",
+      "username": "shr-client",
       "password": "shr-client"
     }
   },
   "fhirServer": {
-    "baseURL": "http://shr-fhir:8080/fhir"
+    "baseURL": "http://shr-fhir:8080/fhir",
+    "username": "shr",
+    "password": "shr"
   },
   "clientRegistryUrl": "http://openhim-core:5001/CR/fhir",
   "fhirConverterUrl": "http://openhim-core:5001/72f",
@@ -27,18 +29,21 @@
     ]
   },
   "bwConfig": {
-    "pimsSystemUrl": "https://api.openconceptlab.org/orgs/B-TECHBW/sources/PIMS-LAB-TEST-DICT/",
+    "pimsSystemUrl": "https://api.openconceptlab.org/orgs/I-TECH-UW/sources/PIMSLAB/",
+    "ipmsSystemUrl": "https://api.openconceptlab.org/orgs/I-TECH-UW/sources/IPMSLAB/",
+    "cielSystemUrl": "https://openconceptlab.org/orgs/CIEL/sources/CIEL",
+    "loincSystemUrl": "https://api.openconceptlab.org/orgs/Regenstrief/sources/LOINC/",
     "omangSystemUrl": "http://moh.bw.org/ext/identifier/omang",
     "oclUrl": "https://api.openconceptlab.org",
-    "requestTimeout": 10000,
+    "requestTimeout": 60000,
     "toIpmsAdtTemplate": "ADT_A04_TO_IPMS.hbs",
     "fromIpmsAdtTemplate": "ADT_A04_FROM_IPMS.hbs",
     "toIpmsOrmTemplate": "ORM_O01_TO_IPMS.hbs",
     "fromIpmsOruTemplate": "ORU_R01_FROM_IPMS.hbs",
     "mllp": {
-      "targetIp": "localhost",
-      "targetAdtPort": 2100,
-      "targetOrmPort": 2100
+      "targetIp": "10.175.5.69",
+      "targetAdtPort": 3001,
+      "targetOrmPort": 3002
     }
   }
 }

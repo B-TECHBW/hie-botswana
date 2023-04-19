@@ -37,16 +37,6 @@ services:
       - "traefik.http.routers.api.service=api@internal"
       - 'traefik.http.routers.api.tls=true'
       - 'traefik.http.routers.api.entrypoints=web-secure'
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    entrypoint: "certbot certonly --standalone -n --agree-tos --email pmanko@uw.edu -d hie-pilot.gov.bw"
-    volumes:
-    - certs:/etc/letsencrypt
-    - letsencrypt:/var/lib/letsencrypt
-    networks:
-    - hie
-  
   ###
   # OpenCR
   ###
@@ -72,9 +62,7 @@ services:
       - 'traefik.http.routers.opencr.tls=true'
       - 'traefik.http.routers.opencr.entrypoints=web-secure'
       - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
-      - 'traefik.http.routers.opencr.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/crux`) || PathPrefix(`/ocrux`)'
-      - 'traefik.http.services.opencr.loadbalancer.server.scheme=http'
-      - 'traefik.http.routers.opencr.service=opencr'
+      - 'traefik.http.routers.opencr.rule=Host(`opencr.hie-pilot.gov.bw`)'
     ports:
       - 8087:3000
   opencr-fhir:
@@ -119,6 +107,8 @@ services:
   # SHR
   ###
   shr:
+    profiles:
+      - debug
     container_name: shr
     hostname: shr
     image: ghcr.io/i-tech-uw/shared-health-record:${SHR_VERSION-latest}
@@ -134,13 +124,12 @@ services:
       - 3001:3001
       - 3002:3001
   shr-fhir:
-    image: hapiproject/hapi:latest-tomcat
+    image: hapiproject/hapi:latest
     container_name: shr-fhir
     hostname: shr-fhir
     restart: unless-stopped
     volumes:
-      # - ./configs/shr/app:/data/hapi
-      - ./configs/shr/application.yml:/data/hapi/application.yaml
+      - shr-data:/data/hapi
     networks:
       - hie
     healthcheck:
@@ -150,11 +139,6 @@ services:
       retries: 3
     ports:
       - 8099:8080
-    environment:
-      SPRING_CONFIG_LOCATION: 'file:///data/hapi/application.yaml'
-    # configs:
-    #   - source: shr-hapi
-    #     target: /data/hapi/application.yaml
 
   ###
   # OpenHIM
@@ -266,6 +250,7 @@ services:
     image: ghcr.io/b-techbw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
     volumes:
       - ./configs/fhir-converter/config.json:/app/config.json
+      - ./configs/fhir-converter/templates:/app/data/service-templates
     networks:
       - hie
     labels:
