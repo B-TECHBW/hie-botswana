@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  openhim-mediator-fhir-converter:
+    image: ghcr.io/i-tech-uw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}    
+    networks:
+      - default
+      - openhim
+    configs:
+      - source: fhir_converter_config
+        target: /app/config.json
+    deploy:
+      resources:
+        limits:
+          cpus: ${FHIR_CONVERTER_CPU_LIMIT-0.5}
+          memory: ${FHIR_CONVERTER_MEMORY_LIMIT-512M}
+        reservations:
+          cpus: ${FHIR_CONVERTER_CPU_RESERVE-0.1}
+          memory: ${FHIR_CONVERTER_MEMORY_RESERVE-128M}      
+networks:
+  openhim:
+    external: true
+    name: openhim_public
+  default:
+configs:
+  fhir_converter_config:
+    file: ./config/config.json
+    labels:
+      name: fhir_converter

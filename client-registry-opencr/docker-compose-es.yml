@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  opencr-es:
+    image: intrahealth/elasticsearch:latest
+    restart: unless-stopped
+    environment:
+      - node.name=es01
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    deploy:
+      resources:
+        limits:
+          memory: ${ES_MEMORY_LIMIT}
+        reservations:
+          memory: ${ES_MEMORY_RESERVE}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /usr/share/elasticsearch/data
+    networks:
+      - default
+      - opencr
+    healthcheck:
+      test: "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"
+
+networks:
+  opencr:
+    external: true
+    name: opencr
+  default:
+    

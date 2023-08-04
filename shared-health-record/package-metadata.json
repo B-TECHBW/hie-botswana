@@ -1,0 +1,20 @@
+{
+  "id": "shared-health-record",
+  "name": "Shared Health Record",
+  "description": "A shared health record for storing longitudinal patient level health data from across the health system.",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {
+    "OPENHIM_USERNAME": "root@openhim.org",
+    "OPENHIM_PASSWORD": "instant101",
+    "OPENHIM_URL": "https://openhim-core:8080",
+    "OPENHIM_MEDIATOR_URN": "urn:mediator:bw-shared-health-record",
+    "OPENHIM_CLIENT_ID": "shr-client",
+    "OPENHIM_CLIENT_PW": "shr-client",
+    "FHIR_STORE_URL": "http://hapi-fhir:8080/fhir",
+    "CLIENT_REGISTRY_CHANNEL": "/CR/fhir",
+    "FHIR_COVERTER_CHANNEL": "/72f",
+    "KAFKA_URL": "kafka-01:9092"
+  }
+}

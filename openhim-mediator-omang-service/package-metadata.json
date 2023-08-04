@@ -1,0 +1,9 @@
+{
+  "id": "openhim-mediator-omang-service",
+  "name": "Omang / BDRS / Immigration Service OpenHIM Mediator",
+  "description": "Service for Patient Identity",
+  "type": "use-case",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}

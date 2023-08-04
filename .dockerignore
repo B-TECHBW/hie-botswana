@@ -2,3 +2,50 @@
 config_development.json
 **/node_modules
 **/built
+
+# docker volume data folders
+**/data
+
+# vscode config
+.vscode
+
+# Docs
+docs
+
+# Dependency directories
+node_modules/
+.editorconfig
+
+# Binaries
+platform-linux
+platform.exe
+platform-macos
+instant-linux
+instant.exe
+instant-macos
+
+# Dockerfiles
+platform-test-harness/PackageTest.dockerfile
+Dockerfile
+
+get-cli.sh
+
+test
+.env.*
+.github/
+.gitignore
+.git
+
+README.md
+
+ansible/
+
+# Go CLI Conf
+banner.txt
+config.yml
+
+# Infrastructure code
+infrastructure
+
+# Schemas
+schemas

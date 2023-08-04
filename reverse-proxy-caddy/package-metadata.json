@@ -1,0 +1,9 @@
+{
+  "id": "reverse-proxy-caddy",
+  "name": "Caddy Reverse Proxy with Coraza WAF",
+  "description": "A Caddy reverse proxy with docker integration and coraza WAF",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}

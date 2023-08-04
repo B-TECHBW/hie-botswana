@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  omangsvc:
+    image: ghcr.io/i-tech-uw/omangsvc:${OMANG_SVC_VERSION-latest}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      update_config:
+        parallelism: 1
+        delay: 5s
+        order: start-first
+    configs:
+      - source: omangsvc_appsettings
+        target: /app/appsettings.json
+    networks:
+      - openhim
+    environment:
+      - TZ=GMT
+configs:
+  omangsvc_appsettings:
+    file: ./config/appsettings.json
+networks:
+  default:
+  openhim:
+    external: true
+    name: openhim_public
+  oracle:
+    external: true
+    name: oracle

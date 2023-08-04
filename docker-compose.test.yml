@@ -16,6 +16,131 @@ services:
       - hie
     volumes:
       - ./test/mllp:/test
+###  
+  # SHR
+  ###
+  shr-fhir:
+    image: hapiproject/hapi:latest-tomcat
+    container_name: shr-fhir
+    hostname: shr-fhir
+    restart: unless-stopped
+    volumes:
+      - shr-data:/data/hapi
+      # - ./configs/shr/application.yaml:/data/hapi/application.yaml
+    environment:
+      SPRING_CONFIG_LOCATION: 'file:///data/hapi/application.yaml'
+    ports:
+      - 8080:8080
+    networks:
+      - hie
+    healthcheck:
+      test: "curl -sS http://shr-fhir:8080/fhir/metadata || exit 1"
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  # Loads Default OpenHIM Config
+  openhim-config:
+    container_name: openhim-config
+    image: ghcr.io/i-tech-uw/openhim-config:v0.0.0
+    volumes:
+      - ./configs/openhim/test-openhim-config.json:/app/test-openhim-config.json
+    networks:
+      - hie
+
+  mongo-db:
+    container_name: mongo-db
+    image: mongo:3.4
+    volumes:
+      - "mongo-data:/data/db"
+    restart: unless-stopped
+    networks:
+      - hie
+
+  fhir-converter:
+    container_name: fhir-converter
+    hostname: fhir-converter
+    restart: unless-stopped
+    image: ghcr.io/i-tech-uw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}
+    volumes:
+      - ./configs/fhir-converter/config.json:/app/config.json
+      - /app/src/service-templates
+    networks:
+      - hie
+    labels:
+      - 'traefik.enable=true'
+      - "traefik.http.routers.converter.tls.certresolver=${PROVIDER}"
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.converter.tls=true'
+      - 'traefik.http.routers.converter.entrypoints=web-secure'
+      - 'traefik.http.routers.converter.rule=Host(`converter.${ROOT_URL}`)'
+
+  # Kafka
+  zookeeper:
+    image: "bitnami/zookeeper:latest"
+    container_name: zookeeper
+    restart: unless-stopped
+    hostname: zookeeper
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+    - hie
+    volumes:
+      - /data
+  kafka:
+    image: "bitnami/kafka:latest"
+    hostname: kafka
+    container_name: kafka
+    restart: unless-stopped
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    volumes:
+      - kafka-data:/bitnami/kafka
+    depends_on:
+      - zookeeper
+    networks:
+    - hie
+    entrypoint: sh -c 'sleep 30 && /opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh' # prevent zookeeper conflict error
+  
+  omang-api:
+    image: ghcr.io/i-tech-uw/omangsvc:${OMANG_SVC_VERSION-latest}
+    hostname: omang-api
+    container_name: omang-api
+    restart: unless-stopped
+    volumes:
+      - ./configs/omang/appsettings.json:/app/appsettings.json
+    networks:
+      - hie
+    labels:
+      - 'traefik.enable=true'
+      - "traefik.http.routers.omang.tls.certresolver=${PROVIDER}"
+      - 'traefik.docker.network=hie-botswana_hie'
+      - 'traefik.http.routers.omang.tls=true'
+      - 'traefik.http.routers.omang.entrypoints=web-secure'
+      - 'traefik.http.routers.omang.rule=Host(`omang.${ROOT_URL}`)'
+    environment:
+      - TZ=GMT
+ 
+  oracle-db:
+    hostname: oracle-db
+    container_name: oracle-db
+    restart: unless-stopped
+    image: wnameless/oracle-xe-11g-r2:latest
+    environment:
+      - ORACLE_ALLOW_REMOTE=true
+      - TZ=GMT
+    ports:
+      - 1521:1521
+    volumes:
+      - ./configs/omang/db:/docker-entrypoint-initdb.d
+
+    networks:
+      - hie
 
 networks:
   hie:

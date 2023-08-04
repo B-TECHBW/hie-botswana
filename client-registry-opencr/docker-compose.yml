@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+
+  opencr:
+    image: itechuw/opencr:bac5a14-2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=${OPENCR_NODE_ENV:-docker}
+      - HAPI_FHIR_URL=${OPENCR_HAPI_URL-http://opencr-hapi-fhir:8080/fhir/metadata}
+    configs:
+      - target: /src/server/config/config_ro.json
+        source: config.json
+      - target: /src/server/config/mediator.json
+        source: mediator.json
+      - target: /src/server/config/decisionRules.json
+        source: decisionRules.json
+      - target: /src/resources/Relationships/PatientRelationship.json
+        source: PatientRelationship.json
+    networks:
+      - reverse-proxy
+      - keycloak
+      - opencr
+      - default
+    deploy:
+      replicas: 1    
+      restart_policy:
+        condition: on-failure
+
+configs:
+  config.json:
+    file: ./config/config.json
+    name: config.json-${config_json_DIGEST:?err}
+    labels:
+      name: opencr
+  mediator.json:
+    file: ./config/mediator.json
+    name: mediator.json-${mediator_json_DIGEST:?err}
+    labels:
+      name: opencr
+  decisionRules.json:
+    file: ./config/decisionRules.json
+    name: decisionRules.json-${decisionRules_json_DIGEST:?err}
+    labels:
+      name: opencr
+  PatientRelationship.json:
+    file: ./config/PatientRelationship.json
+    name: PatientRelationship.json-${PatientRelationship_json_DIGEST:?err}
+    labels:
+      name: opencr
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  keycloak:
+    name: keycloak_public
+    external: true
+  opencr:
+    name: opencr
+    external: true
+  default:

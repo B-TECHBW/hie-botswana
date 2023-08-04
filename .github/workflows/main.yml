@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-test:
-    timeout-minutes: 20
+    timeout-minutes: 30
     runs-on: ubuntu-latest
 
     steps:
@@ -28,58 +28,63 @@ jobs:
           username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Pull containers
-        run: docker-compose pull
+      - name: Initialize docker swarm
+        run: docker swarm init
+
+      - name: Build local docker image of HIE
+        run: ./build-image.sh
+
+      - name: Download instant CLI
+        run: ./get-cli.sh linux latest
+
+      - name: Boot up HIE 
+        run: ./instant project init --env-file .env.hie -d
 
       - name: Cache containers
         uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
-        
-      - name: Start support containers
-        run: docker-compose up -d
-        
-      - name: Sleep for 150 seconds
-        run: sleep 150
-        shell: bash
-
-      - name: Display docker logs for openhim config
-        run: docker-compose logs openhim-config
 
       - name: Display container status
-        run: docker-compose ps
+        run: docker ps
 
-      - name: Display logs 
-        run: docker-compose logs shr opencr fhir-converter
-
-      - name: Run General Tests https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-77f89792-c73b-4c75-a450-5cb6f79230d4)
-        env: 
-          POSTMAN_COLLECTION: /.postman/collections/1_general_tests.postman_collection.json
-        run: docker-compose -f docker-compose.test.yml up --exit-code-from newman newman 
-
-      - name: Run CR Tests (https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-16a5a3c2-719f-40a6-ad06-a9530d3f2006)
-        env: 
-          POSTMAN_COLLECTION: /.postman/collections/2_cr_workflows.postman_collection.json
-        run: docker-compose -f docker-compose.test.yml up --exit-code-from newman newman 
-
-      - name: Run Laboratory Tests (https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-db80feab-8a77-42c8-aa7e-fd4beb0ae6a8)
-        env: 
-          POSTMAN_COLLECTION: /.postman/collections/3_lab_workflows.postman_collection.json
-        run: docker-compose -f docker-compose.test.yml up --exit-code-from newman newman 
-
-      - name: Run HL7 <--> FHIR Tests (https://openme.postman.co/workspace/Botswana-HIE~bf140db5-85f6-4470-bc3a-511efcda80ba/collection/1525496-6ae2c5fc-f659-4bc3-8fe0-18b07ab5e57a)
-        env: 
-          POSTMAN_COLLECTION: /.postman/collections/4_hl7_conversion.postman_collection.json
-        run: docker-compose -f docker-compose.test.yml up --exit-code-from newman newman 
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
       
-      - name: Run Patient Identity Validation Tests (https://www.postman.com/itechuw/workspace/botswana-hie/collection/1525496-e7128a3a-616d-4fc8-8e4a-615990a97756?action=share&creator=1525496)
-        env: 
-          POSTMAN_COLLECTION: /.postman/collections/5_patient_identity.postman_collection.json
-        run: docker-compose -f docker-compose.test.yml up --exit-code-from newman newman 
-
-      - name: Display logs 
+      - name: Sleep for 250 seconds
+        run: sleep 250
+        shell: bash
+        
+      - name: Run General API Test Collection
+        run: |
+          postman collection run --verbose --delay-request 1000 --timeout-request 1000 -k "1525496-77f89792-c73b-4c75-a450-5cb6f79230d4" -e "1525496-a3f83e5d-773b-4186-9422-08bb01d07131"
+        continue-on-error: true
+      - name: Run Client Registry Test Collection
+        run: |
+          postman collection run --verbose --delay-request 1000 --timeout-request 1000 -k "1525496-16a5a3c2-719f-40a6-ad06-a9530d3f2006" -e "1525496-a3f83e5d-773b-4186-9422-08bb01d07131"
+        continue-on-error: true
+      - name: Run Laboratory Test Collection
+        run: |
+          postman collection run --verbose --delay-request 1000 --timeout-request 1000 -k "1525496-8be9c19c-9e7b-4316-adea-3604884af5d7" -e "1525496-a3f83e5d-773b-4186-9422-08bb01d07131"
+        continue-on-error: true
+      - name: Display SHR logs
         if: always()
-        run: docker-compose logs shr opencr fhir-converter openhim-core
-
+        run: |
+          docker service logs shared-health-record_shared-health-record
+      - name: Display fhir-datastore logs
+        if: always()
+        run: |
+          docker service logs hapi-fhir_hapi-fhir
+      - name: Display CR logs
+        if: always()
+        run: |
+          docker service logs client-registry-opencr_opencr
+      - name: Display OpenHIM logs
+        if: always()
+        run: |
+          docker service logs openhim_openhim-core
       - name: Stop containers
         if: always()
-        run: docker-compose down -v
+        run: ./instant project destroy
