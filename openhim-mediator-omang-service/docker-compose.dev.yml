@@ -1,8 +1,8 @@
 version: '3.9'
 
 services:
-  shared-health-record:
+  omangsvc:
     ports:
-      - target: 3000
-        published: 3001
+      - target: 80
+        published: 8098
         mode: host

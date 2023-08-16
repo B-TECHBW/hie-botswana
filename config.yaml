@@ -1,5 +1,5 @@
 projectName: hie-botswana
-image: itechuw/hie-botswana:v1.0.1
+image: itechuw/hie-botswana:v1.1.0-alpha.1
 logPath: /tmp/logs
 
 packages:
@@ -10,7 +10,7 @@ packages:
   - interoperability-layer-openhim
   - message-bus-kafka
   - monitoring
-  - reverse-proxy-nginx
+  - reverse-proxy-traefik
   - shared-health-record
   - openhim-mediator-fhir-converter
   - openhim-mediator-omang-service

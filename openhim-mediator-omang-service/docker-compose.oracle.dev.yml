@@ -3,5 +3,5 @@ services:
   oracle-db:
     ports:
       - target: 1521
-        published: 1521
+        published: 1522
         mode: host
