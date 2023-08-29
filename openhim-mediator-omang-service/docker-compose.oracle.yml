@@ -25,7 +25,6 @@ services:
 configs:
   init_sql:
     file: ./config/init.sql
-    name: init_sql-${init_sql_DIGEST:?err}
     labels:
       name: oracle
 networks:

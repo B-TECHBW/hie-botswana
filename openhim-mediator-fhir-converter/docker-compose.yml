@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   openhim-mediator-fhir-converter:
-    image: ghcr.io/i-tech-uw/openhim-mediator-fhir-converter:${FHIR_CONVERTER_VERSION-latest}    
+    image: itechuw/openhim-mediator-fhir-converter:debug    
     networks:
       - default
       - openhim

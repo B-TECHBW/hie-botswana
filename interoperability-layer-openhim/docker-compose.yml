@@ -12,6 +12,17 @@ services:
       public:
       default:
       opencr:
+      traefik-public:
+    ports:
+      - target: 8080
+        published: 8090
+        mode: host
+    configs:
+      - source: cert.pem
+        target: /app/certs/cert.pem
+      - source: key.pem
+        target: /app/certs/key.pem
+        
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -22,6 +33,10 @@ services:
       - api_openid_callbackUrl=${KC_OPENHIM_ROOT_URL}
       - api_openid_clientId=${KC_OPENHIM_CLIENT_ID}
       - api_openid_clientSecret=${KC_OPENHIM_CLIENT_SECRET}
+      - certificateManagement_watchFSForCert=true
+      - certificateManagement_certPath=/app/certs/cert.pem
+      - certificateManagement_keyPath=/app/certs/key.pem
+
     deploy:
       replicas: ${OPENHIM_CORE_INSTANCES}
       placement:
@@ -33,6 +48,39 @@ services:
         reservations:
           cpus: ${OPENHIM_CPU_RESERVE}
           memory: ${OPENHIM_MEMORY_RESERVE}
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.docker.network=traefik-public'
+        
+        - 'traefik.http.services.openhim-api.loadbalancer.server.port=8080'
+        - 'traefik.http.services.openhim-api.loadbalancer.server.scheme=https'
+        - 'traefik.http.routers.openhim-api.service=openhim-api'
+        - 'traefik.http.routers.openhim-api.tls=true'
+        - 'traefik.http.routers.openhim-api.entrypoints=web-secure'
+        - 'traefik.http.routers.openhim-api.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/openhim-api`)'
+        - 'traefik.http.routers.openhim-api.middlewares=openhim-api'      
+        - 'traefik.http.middlewares.openhim-api.stripprefix.prefixes=/openhim-api'
+        - 'traefik.http.middlewares.openhim-api.stripprefix.forceSlash=false'
+
+        - 'traefik.http.services.openhim-ssl.loadbalancer.server.port=5000'
+        - 'traefik.http.services.openhim-ssl.loadbalancer.server.scheme=https'
+        - 'traefik.http.routers.openhim-ssl.service=openhim-ssl'
+        - 'traefik.http.routers.openhim-ssl.tls=true'
+        - 'traefik.http.routers.openhim-ssl.entrypoints=web-secure'
+        - 'traefik.http.routers.openhim-ssl.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/openhim-ssl`)'
+        - 'traefik.http.routers.openhim-ssl.middlewares=openhim-ssl'      
+        - 'traefik.http.middlewares.openhim-ssl.stripprefix.prefixes=/openhim-ssl'
+        - 'traefik.http.middlewares.openhim-ssl.stripprefix.forceSlash=false'
+
+        - 'traefik.http.services.openhim-http.loadbalancer.server.port=5001'
+        - 'traefik.http.services.openhim-http.loadbalancer.server.scheme=http'
+        - 'traefik.http.routers.openhim-http.service=openhim-http'
+        - 'traefik.http.routers.openhim-http.tls=false'
+        - 'traefik.http.routers.openhim-http.entrypoints=web'
+        - 'traefik.http.routers.openhim-http.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/openhim-http`)'
+        - 'traefik.http.routers.openhim-http.middlewares=openhim-http'      
+        - 'traefik.http.middlewares.openhim-http.stripprefix.prefixes=/openhim-http'
+        - 'traefik.http.middlewares.openhim-http.stripprefix.forceSlash=false'
 
   openhim-console:
     image: jembi/openhim-console:v1.18.2
@@ -48,6 +96,7 @@ services:
       keycloak:
       public:
       default:
+      traefik-public:
     deploy:
       replicas: ${OPENHIM_CONSOLE_INSTANCES}
       placement:
@@ -59,6 +108,26 @@ services:
         reservations:
           cpus: ${OPENHIM_CONSOLE_CPU_RESERVE}
           memory: ${OPENHIM_CONSOLE_MEMORY_RESERVE}
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.docker.network=traefik-public'
+        - 'traefik.http.services.openhim-console.loadbalancer.server.port=80'
+        - 'traefik.http.services.openhim-console.loadbalancer.server.scheme=http'
+        - 'traefik.http.routers.openhim-console.service=openhim-console'
+        - 'traefik.http.routers.openhim-console.tls=true'
+        - 'traefik.http.routers.openhim-console.entrypoints=web-secure'
+        - 'traefik.http.routers.openhim-console.rule=Host(`hie-pilot.gov.bw`)'
+configs:
+  cert.pem:
+    file: ./certs/hie-pilot.gov.bw/cert.pem
+    name: cert.pem
+    labels:
+      name: openhim
+  key.pem:
+    file: ./certs/hie-pilot.gov.bw/key.pem
+    name: key.pem
+    labels:
+      name: openhim
 
 networks:
   kafka:
@@ -78,5 +147,8 @@ networks:
     external: true
   public:
     name: openhim_public
+    external: true
+  traefik-public:
+    name: traefik-public
     external: true
   default:
