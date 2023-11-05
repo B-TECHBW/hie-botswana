@@ -24,14 +24,25 @@ services:
       - keycloak
       - opencr
       - default
+      - openhim
+      - traefik
     deploy:
       replicas: 1    
       restart_policy:
-        condition: on-failure
+        condition: any
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.docker.network=traefik-public'
+        - 'traefik.http.routers.opencr.tls=true'
+        - 'traefik.http.routers.opencr.entrypoints=web-secure'
+        - 'traefik.http.services.opencr.loadbalancer.server.port=3000'
+        - 'traefik.http.routers.opencr.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/crux`) || PathPrefix(`/ocrux`)'
+        - 'traefik.http.services.opencr.loadbalancer.server.scheme=http'
+        - 'traefik.http.routers.opencr.service=opencr'
 
 configs:
   config.json:
-    file: ./config/config.json
+    file: ./config/_config.json
     name: config.json-${config_json_DIGEST:?err}
     labels:
       name: opencr
@@ -62,3 +73,12 @@ networks:
     name: opencr
     external: true
   default:
+  traefik:
+    name: traefik-public
+    external: true
+  openhim:    
+    name: openhim_public
+    external: true
+  omang:
+    name: omang_public
+    external: true

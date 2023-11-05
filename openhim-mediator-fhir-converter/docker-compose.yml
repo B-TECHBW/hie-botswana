@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   openhim-mediator-fhir-converter:
-    image: itechuw/openhim-mediator-fhir-converter:debug    
+    image: itechuw/openhim-mediator-fhir-converter:debug-2
     networks:
       - default
       - openhim
@@ -24,6 +24,6 @@ networks:
   default:
 configs:
   fhir_converter_config:
-    file: ./config/config.json
+    file: ./config/_config.json
     labels:
       name: fhir_converter

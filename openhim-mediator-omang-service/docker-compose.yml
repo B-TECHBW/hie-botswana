@@ -19,16 +19,22 @@ services:
         target: /app/appsettings.json
     networks:
       - openhim
+      - oracle
     environment:
       - TZ=GMT
 configs:
   omangsvc_appsettings:
-    file: ./config/appsettings.json
+    file: ./config/_config.json
+    name: omangsvc_appsettings
+    labels:
+      - "omang"
 networks:
-  default:
   openhim:
     external: true
     name: openhim_public
   oracle:
     external: true
     name: oracle
+  omang:
+    external: true
+    name: omang_public

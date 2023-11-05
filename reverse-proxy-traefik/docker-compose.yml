@@ -85,10 +85,10 @@ services:
       # Enable the Traefik log, for configurations and errors
       - --log
       - --log.level=DEBUG
-      # Enable the Dashboard and API
-      - --api
-      - --api.dashboard=true
-      - --api.insecure=false
+      # # Enable the Dashboard and API
+      # - --api
+      # - --api.dashboard=true
+      # - --api.insecure=false
 
 configs:
   certs.yml:

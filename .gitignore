@@ -60,3 +60,5 @@ instant.exe
 instant-macos
 
 .env
+
+_config.json
