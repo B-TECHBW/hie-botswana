@@ -1,9 +1,9 @@
 version: '3.9'
 
 services:
-
+  # docker-compose -f client-registry-opencr/docker-compose.yml --env-file client-registry-opencr/.env.build build
   opencr:
-    image: itechuw/opencr:bac5a14-2
+    image: itechuw/opencr:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -39,7 +39,12 @@ services:
         - 'traefik.http.routers.opencr.rule=Host(`hie-pilot.gov.bw`) && PathPrefix(`/crux`) || PathPrefix(`/ocrux`)'
         - 'traefik.http.services.opencr.loadbalancer.server.scheme=http'
         - 'traefik.http.routers.opencr.service=opencr'
-
+    healthcheck:
+      test: /usr/bin/wget --no-verbose --tries=1 --spider http://localhost:3000/crux/
+      interval: 30s
+      timeout: 20s
+      retries: 5
+      start_period: 1m
 configs:
   config.json:
     file: ./config/_config.json

@@ -11,7 +11,7 @@
     "KAFKA_CPU_RESERVE": "0.05",
     "KAFKA_MEMORY_LIMIT": "3G",
     "KAFKA_MEMORY_RESERVE": "500M",
-    "KAFKA_TOPICS": "2xx,2xx-async,3xx,reprocess,errors,metrics:3:1",
+    "KAFKA_TOPICS": "send-adt-to-ipms,send-orm-to-ipms,save-pims-patient,save-ipms-patient,handle-adt-from-ipms,handle-oru-from-ipms,reprocess,errors,metrics:3:1",
     "KAFDROP_INSTANCES": "1",
     "KAFDROP_CPU_LIMIT": "0",
     "KAFDROP_CPU_RESERVE": "0.05",

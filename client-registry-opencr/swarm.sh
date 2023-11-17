@@ -51,7 +51,7 @@ function initialize_package() {
   fi
 
   (
-    # docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml"
     
     docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-es.yml"
 
@@ -72,7 +72,7 @@ function destroy_package() {
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 
-  docker::prune_configs "hapi-fhir"
+  docker::prune_configs "opencr"
 }
 
 main() {

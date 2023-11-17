@@ -4,15 +4,15 @@ services:
   opencr-postgres-1:
     image: bitnami/postgresql-repmgr:14
     environment:
-      POSTGRESQL_PASSWORD: ${OPENCR_HF_POSTGRESQL_PASSWORD-instant101}
-      POSTGRESQL_USERNAME: ${OPENCR_HF_POSTGRESQL_USERNAME-admin}
-      POSTGRESQL_DATABASE: ${OPENCR_HF_POSTGRESQL_DATABASE-hapi}
+      POSTGRESQL_PASSWORD: ${OPENCR_HF_POSTGRESQL_PASSWORD}
+      POSTGRESQL_USERNAME: ${OPENCR_HF_POSTGRESQL_USERNAME}
+      POSTGRESQL_DATABASE: ${OPENCR_HF_POSTGRESQL_DATABASE}
       REPMGR_NODE_NETWORK_NAME: opencr-postgres-1
-      REPMGR_PASSWORD: ${OPENCR_REPMGR_PASSWORD}
+      REPMGR_PASSWORD: ${CR_REPMGR_PASSWORD}
       REPMGR_RECONNECT_INTERVAL: 3
       REPMGR_NODE_NAME: opencr-postgres-1
-      REPMGR_PRIMARY_HOST: ${OPENCR_REPMGR_PRIMARY_HOST}
-      REPMGR_PARTNER_NODES: ${OPENCR_REPMGR_PARTNER_NODES}
+      REPMGR_PRIMARY_HOST: ${CR_REPMGR_PRIMARY_HOST}
+      REPMGR_PARTNER_NODES: ${CR_REPMGR_PARTNER_NODES}
       POSTGRESQL_POSTGRES_PASSWORD: ${OPENCR_HAPI_POSTGRES_PASSWORD}
     volumes:
       - "opencr-postgres-1-data:/bitnami/postgresql"
@@ -20,14 +20,14 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: ${HF_POSTGRES_CPU_LIMIT}
-          memory: ${HF_POSTGRES_MEMORY_LIMIT}
+          cpus: ${OPENCR_HF_POSTGRES_CPU_LIMIT}
+          memory: ${OPENCR_HF_POSTGRES_MEMORY_LIMIT}
         reservations:
-          cpus: ${HF_POSTGRES_CPU_RESERVE}
-          memory: ${HF_POSTGRES_MEMORY_RESERVE}
+          cpus: ${OPENCR_HF_POSTGRES_CPU_RESERVE}
+          memory: ${OPENCR_HF_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      opencr-postgres:
+      opencr:
 
 
 volumes:
@@ -35,7 +35,7 @@ volumes:
 
 networks:
   default:
-  opencr-postgres:
-    name: opencr-postgres
+  opencr:
+    name: opencr
     external: true
 
