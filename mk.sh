@@ -13,3 +13,4 @@
 # ./instant package init -n fhir-datastore-hapi-fhir --env-file .env
 ./instant package init -n client-registry-opencr --env-file .env
 #./instant package init -n shared-health-record --env-file .env -d
+

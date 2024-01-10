@@ -3,6 +3,7 @@ version: '3.9'
 services:
   shared-health-record:
     image: itechuw/shared-health-record:latest
+
     networks:
       - default
       - hapi-fhir
