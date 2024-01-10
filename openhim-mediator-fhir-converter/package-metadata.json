@@ -1,0 +1,9 @@
+{
+  "id": "openhim-mediator-fhir-converter",
+  "name": "FHIR-HL7 Conversion OpenHIM Mediator",
+  "description": "A utility for translating HL7&lt;--&gt;FHIR messages.",
+  "type": "use-case",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}

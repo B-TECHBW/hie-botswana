@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  openhim-core:
+    ports:
+      - target: 8080
+        published: 8090
+        mode: host
+

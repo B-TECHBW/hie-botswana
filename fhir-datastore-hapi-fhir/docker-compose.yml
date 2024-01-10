@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  hapi-fhir:
+    image: jembi/hapi:v5.7.0-wget
+    networks:
+      shr:
+      public:
+      default:
+    environment:
+      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi?targetServerType=primary
+      - spring.datasource.username=admin
+      - spring.datasource.password=instant101
+      - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
+      - hapi.fhir.allow_external_references=true
+      - hapi.fhir.auto_create_placeholder_reference_targets=true
+      - hapi.fhir.bulk_export_enabled=true
+      - hapi.fhir.enable_repository_validating_interceptor=true
+      - JAVA_TOOL_OPTIONS=-Xmx2g
+      - CATALINA_OPTS=-Xmx2g
+    deploy:
+      replicas: ${HAPI_FHIR_INSTANCES}
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${HAPI_FHIR_CPU_LIMIT}
+          memory: ${HAPI_FHIR_MEMORY_LIMIT}
+        reservations:
+          cpus: ${HAPI_FHIR_CPU_RESERVE}
+          memory: ${HAPI_FHIR_MEMORY_RESERVE}
+    healthcheck:
+      test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 2m
+
+networks:
+  shr:
+    name: shr_public
+    external: true
+  public:
+    name: hapi-fhir_public
+    external: true
+  default:

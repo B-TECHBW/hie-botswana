@@ -12,7 +12,7 @@
       "urn": "urn:mediator:bw-shared-health-record"
     },
     "client": {
-      "id": "shr-client",
+      "username": "shr-client",
       "password": "shr-client"
     }
   },
@@ -24,21 +24,20 @@
   "taskRunner": {
     "brokers": [
       "kafka:9092"
-    ]
-  },
+    ]    },
   "bwConfig": {
     "pimsSystemUrl": "https://api.openconceptlab.org/orgs/B-TECHBW/sources/PIMS-LAB-TEST-DICT/",
     "omangSystemUrl": "http://moh.bw.org/ext/identifier/omang",
     "oclUrl": "https://api.openconceptlab.org",
-    "requestTimeout": 10000,
+    "requestTimeout": 60000,
     "toIpmsAdtTemplate": "ADT_A04_TO_IPMS.hbs",
     "fromIpmsAdtTemplate": "ADT_A04_FROM_IPMS.hbs",
     "toIpmsOrmTemplate": "ORM_O01_TO_IPMS.hbs",
     "fromIpmsOruTemplate": "ORU_R01_FROM_IPMS.hbs",
     "mllp": {
-      "targetIp": "localhost",
-      "targetAdtPort": 2100,
-      "targetOrmPort": 2100
+      "targetIp": "1.1.1.1",
+      "targetAdtPort": 3001,
+      "targetOrmPort": 3002
     }
   }
 }

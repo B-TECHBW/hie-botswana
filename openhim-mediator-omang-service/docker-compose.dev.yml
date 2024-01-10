@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  omangsvc:
+    ports:
+      - target: 80
+        published: 8098
+        mode: host

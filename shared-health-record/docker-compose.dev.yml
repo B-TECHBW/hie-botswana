@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  shared-health-record:
+    # image: ghcr.io/i-tech-uw/shared-health-record:debug-5
+    image: itechuw/shared-health-record:debug-1
+    entrypoint: node --inspect=0.0.0.0:9230 /app/dist/app.js
+
+    ports:
+      - target: 9230
+        published: 9230
+        mode: host

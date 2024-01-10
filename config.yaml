@@ -1,0 +1,43 @@
+projectName: hie-botswana
+image: itechuw/hie-botswana:v1.1.0-alpha.1
+logPath: /tmp/logs
+
+packages:
+  # I-TECH
+  - client-registry-opencr
+  - fhir-datastore-hapi-fhir
+  - identity-access-manager-keycloak
+  - interoperability-layer-openhim
+  - message-bus-kafka
+  - monitoring
+  - reverse-proxy-traefik
+  - shared-health-record
+  - openhim-mediator-fhir-converter
+  - openhim-mediator-omang-service
+  
+  # Future
+  # - dashboard-visualiser-kibana
+  # - data-mapper-logstash
+  # - dashboard-visualiser-jsreport
+  # - kafka-mapper-consumer
+  # - kafka-unbundler-consumer
+  # - analytics-datastore-clickhouse
+  # - dashboard-visualiser-superset
+  # - analytics-datastore-elastic-search
+  
+  # Possibly Needed
+  # - message-bus-helper-hapi-proxy
+  # - job-scheduler-ofelia
+  # - openhim-mapping-mediator
+
+# profiles:
+#     - name: <<profile-name>>
+#       packages:
+#         - <<profile-package-id-1>>
+#         - <<profile-package-id-2>>
+#       envVars:
+#         - <<env-var-1>>
+#         - <<env-var-2>>
+#       envFiles:
+#         - <<env-file-1>>
+#         - <<env-file-2>>

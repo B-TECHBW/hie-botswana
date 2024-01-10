@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  caddy:
+    container_name: caddy
+    build:
+      context: ./build
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - CADDY_INGRESS_NETWORKS=reverse-proxy_public
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - caddy-data:/data
+      - ./ruleset:/ruleset
+      - audit:/audit
+      - ./caddy/Caddyfile:/Caddyfile
+    restart: unless-stopped
+    networks:
+      - public
+
+networks:
+  public:
+    name: reverse-proxy_public
+    external: true

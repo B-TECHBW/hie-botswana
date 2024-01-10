@@ -2,7 +2,7 @@
     "version": "1.13.2",
     "minimumCoreVersion": "5.2.0",
     "protocol": "https",
-    "host": "core.moh.org.bw",
+    "host": "openhim-core.bwhie.org",
     "hostPath": "",
     "port": "",
     "title": "Botswana HIE Admin Console",
